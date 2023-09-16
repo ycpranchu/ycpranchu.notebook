@@ -1,10 +1,10 @@
 {
-    "index": "Welcome",
+    "index": "Home",
 
     "Web-Design": {
         "title": "Web Design"
     },
-    "Linebot": {
+    "Linebot-Design": {
         "title": "Linebot Design"
     },
     "Ray-Tracing": {
