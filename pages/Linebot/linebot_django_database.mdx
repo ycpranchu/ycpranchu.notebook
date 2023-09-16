@@ -5,7 +5,7 @@ Linebot + Django Database Implementation
 - previous post: https://github.com/ycpranchu/linebot_django
 - [Django official document](https://docs.djangoproject.com/en/4.2/topics/db/models/)
 
-Django includes a simple yet powerful ORM (Object-Relational Mapping) that provides support for generating and managing database migrations. Django supports many popular relational databases, such as SQLite, PostgreSQL, MySQL, and Oracle. In other words, if you're using a relational database, Django's built-in ORM and migration management tools make getting started easier.
+Django includes a simple yet powerful **ORM** (Object-Relational Mapping) that provides support for generating and managing database migrations. Django supports many popular relational databases, such as SQLite, PostgreSQL, MySQL, and Oracle. In other words, if you're using a relational database, Django's built-in ORM and migration management tools make getting started easier.
 
 Overview
 ---
@@ -14,7 +14,7 @@ Overview
 - Each attribute of the model represents a database field.
 - With all of this, Django gives you an automatically-generated database-access API.
 
-Creating Database Tables: models.py
+Creating Data Table: models.py
 ---
 
 For example, let's define a `Person` data with attributes `first_name` and `last_name`:
@@ -39,7 +39,7 @@ CREATE TABLE myapp_person (
 
 Similarly, if we want to record user IDs and message content from a Linebot:
 
-```python
+```python filename="models.py"
 from django.db import models
 
 # Create your models here.
@@ -58,12 +58,12 @@ class user_message(models.Model):
 - `time = models.DateTimeField(auto_now_add=True)` When `auto_now_add` is `True`, this field's value will be "forced" to the time when the model instance is first created. It is also read-only.
 - `__str__()`: A Python “magic method” that returns a string representation of any object. This is what Python and Django will use whenever a model instance needs to be coerced and displayed as a plain string. Most notably, this happens when you display an object in an interactive console or in the admin.
 
-Backend Data: admin.py
+Register Data Table: admin.py
 ---
 
-from models.py import the database table
+from `admin.py` import the data table
 
-```python
+```python filename="admin.py"
 from django.contrib import admin
 
 # Register your models here.
@@ -74,52 +74,52 @@ class user_message_admin(admin.ModelAdmin):
 admin.site.register(user_message, user_message_admin)
 ```
 
-### 更新資料庫
+### update the database
 
 ```bash=
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-資料表操作：views.py
+Manipulate Data Table: views.py
 ---
 
-將 models.py 資料表匯入 views.py
+Import the database table from `views.py`:
 
 ```python
 from example.models import *
 ```
 
-修改 views.py 主要 codespace
+Modify the main codespace in `views.py`:
 
-```python
+```python filename="views.py"
 if isinstance(event, MessageEvent):
     uid = event.source.user_id
     profile = line_bot_api.get_profile(uid)
     name = profile.display_name
     text = event.message.text
 
-    message=[]
+    message = []
     if not user_message.objects.filter(uid=uid).exists():
         user_message.objects.create(uid=uid, name=name, message=text)
-        message.append(TextSendMessage(text='資料新增完畢'))
+        message.append(TextSendMessage(text='Data added successfully'))
     else:
         user_message.objects.filter(uid=uid, name=name).update(message=text, time=datetime.datetime.now())
         # obj = user_message.objects.get(uid=uid)
         # obj.message = text
         # obj.save()                
-        message.append(TextSendMessage(text='資料修改完畢'))
+        message.append(TextSendMessage(text='Data updated successfully'))
 
     line_bot_api.reply_message(event.reply_token, message)
 ```
 
-登入 `http://127.0.0.1:8000/admin`，資料新增成功
+Log in to `http://127.0.0.1:8000/admin`, and you will see that the data has been added successfully:
 
-{/* ![Alt text](static/image1.png) */}
+![](https://hackmd.io/_uploads/ByqOMCMkT.png)
 
-### 關於 `DateTimeField` 自動更新
+### about automatic update of `DateTimeField`
 
-操作經過 model 層，會自動更新 current time
+When the operation goes through the model layer, the current time is updated automatically:
 
 ```python
 obj = user_message.objects.get(uid=uid)
@@ -127,24 +127,24 @@ obj.message = text
 obj.save()
 ```
 
-使用 filter 的 update，因為直接調用 sql 語法，不通過 model 層，需呼叫 `datetime.datetime.now()` 函式更新
+When using `update` with `filter`, it directly calls SQL statements and doesn't go through the model layer, so you need to call `datetime.datetime.now()` to update the field:
 
 ```python
 user_message.objects.filter(uid=uid, name=name).update(message=text, time=datetime.datetime.now())
 ```
 
-{/* ![Alt text](static/image2.png) */}
+![](https://hackmd.io/_uploads/BkxTfRMkT.png)
 
-Database CRUD (create, read, update, delete)
+Database CRUD (Create, Read, Update, Delete)
 ---
 
-### Create data:
+### create data
 
 ```python
 Table_name.objects.create(data=data)
 ```
 
-### Read data:
+### read data
 
 ```python
 # return list
@@ -154,19 +154,15 @@ Table_name.objects.filter(data=data)
 Table_name.objects.get(data=data)
 ```
 
-### Update data:
+### update data
 
 ```python
 Table_name.objects.filter(data=data, name=name).update(text=new_text)
 ```
 
-### Delete data:
+### delete data
 
 ```python
 Table_name.objects.filter(data=data).delete()
 Table_name.objects.all().delete()
-<<<<<<< HEAD
 ```
-=======
-```
->>>>>>> 633b46f6dee9780e889c17022e66960a777a5797
