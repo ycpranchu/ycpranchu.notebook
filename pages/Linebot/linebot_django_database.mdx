@@ -61,7 +61,7 @@ class user_message(models.Model):
 Backend Data: admin.py
 ---
 
-Import the database table from `models.py`:
+from models.py import the database table
 
 ```python
 from django.contrib import admin
@@ -84,13 +84,13 @@ python manage.py migrate
 資料表操作：views.py
 ---
 
-Modify the main codespace in `views.py`:
+將 models.py 資料表匯入 views.py
 
 ```python
 from example.models import *
 ```
 
-Modify the main codespace in `views.py`:
+修改 views.py 主要 codespace
 
 ```python
 if isinstance(event, MessageEvent):
