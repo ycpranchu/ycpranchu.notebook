@@ -47,45 +47,19 @@ export default {
         content: 'Question? Give us feedback →',
         labels: 'feedback'
     },
-    primary_navigation: [
-        {
-            route: "/",
-            name: "Home",
-        },
-        {
-            route: "/posts",
-            name: "Blog",
-        },
-        {
-            route: "/about",
-            name: "About",
-        },
-        {
-            route: "/contact",
-            name: "Contact",
-        },
-    ],
-    secondary_navigation: [
-        {
-            route: "/disclaimer",
-            name: "Disclaimer",
-        },
-        {
-            route: "/privacy-policy",
-            name: "Privacy policy",
-        },
-    ],
-    social_links: [
-        {
-            name: "Twitter",
-            url: "https://facebook.com/officialrajdeepsingh",
-        },
-        {
-            name: "Github",
-            url: "https://facebook.com/officialrajdeepsingh",
-        },
-    ],
+    navigation: {
+        prev: true,
+        next: true
+    },
     footer: {
-        text: '2023 © Made by ycpin & ycpranchu'
+        text: (
+            <span>
+                MIT {new Date().getFullYear()} ©{' '}
+                <a href="https://ycpranchu.com" target="_blank">
+                    ycpin & ycpranchu
+                </a>
+                .
+            </span>
+        )
     },
 }
