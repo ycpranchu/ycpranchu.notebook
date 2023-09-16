@@ -11,7 +11,7 @@ export default {
     project: {
         link: 'https://github.com/ycpranchu'
     },
-    docsRepositoryBase: 'https://github.com/ycpranchu/ycpranchu.github.io',
+    docsRepositoryBase: 'https://github.com/ycpranchu/ycpranchu.notebook',
     useNextSeoProps() {
         const { asPath } = useRouter()
         if (asPath !== '/') {

@@ -3,7 +3,7 @@
  **/
 
 const isProduction = process.env.NODE_ENV === "production";
-const assetPrefix = isProduction ? "/ycpranchu.github.io/.next/server/pages" : "";
+const assetPrefix = isProduction ? "/ycpranchu.notebook" : "";
 
 const withNextra = require('nextra')({
     theme: 'nextra-theme-docs',
@@ -17,7 +17,7 @@ const nextConfig = {
     images: {
         unoptimized: true,
     },
-    basePath: "/ycpranchu.github.io/.next/server/pages",
+    basePath: assetPrefix,
 };
 
 module.exports = {
