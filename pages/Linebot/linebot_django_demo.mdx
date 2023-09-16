@@ -62,14 +62,14 @@ If you encounter permission issues:
 Set-ExecutionPolicy RemoteSigned
 ```
 
-### install Required Packages
+### install required packages
 
 ```bash
 pip install Django
 pip install line-bot-sdk
 ```
 
-### create a Project
+### create a project
 
 ```bash
 cd D:/
@@ -77,7 +77,7 @@ django-admin startproject 'project-name'
 cd 'project-name'
 ```
 
-### create an App
+### create an app
 
 You can create multiple Line Bot apps.
 
@@ -92,7 +92,7 @@ Setting up setting.py
 
 <Steps>
 
-### create Two Folders
+### create two folders
 
 ```bash
 md static
@@ -102,38 +102,38 @@ md templates
 - `static` for static data such as images and files.
 - `templates` for storing pre-written HTML.
 
-### configure Channel Access Token & Channel Secret
+### configure channel access token & channel secret
 
 ![](https://i.imgur.com/3svMhdL.png)
 
-### add the App Name to INSTALLED_APPS
+### add the app name to INSTALLED_APPS
 
 ![](https://i.imgur.com/ijFM6yl.png)
 
-### set the Templates Folder Path in TEMPLATES
+### set the templates folder path in TEMPLATES
 
 ![](https://i.imgur.com/XWdj2iA.png)
 
-### language and Timezone Settings
+### language and timezone settings
 
 ![](https://i.imgur.com/pT3WV8d.png)
 
-### add the Static Path
+### add the static path
 
 ![](https://i.imgur.com/9MdavbV.png)
 
-### development Stage Configuration
+### development stage configuration
 
 ![](https://i.imgur.com/rJ3R5PW.png)
 
-### initialize Database Migration
+### initialize database migration
 
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-### create an Admin Account
+### create an admin account
 
 ```bash
 python manage.py createsuperuser
@@ -141,7 +141,7 @@ python manage.py createsuperuser
 
 ![](https://i.imgur.com/dUfn81s.png)
 
-### run the Server for Testing
+### run the server for testing
 
 ```bash
 python manage.py runserver # Open a browser and go to 127.0.0.1:8000/admin
@@ -227,14 +227,14 @@ Prepare for running
 
 https://ngrok.com/download
 
-### start the Django Server + Launch ngrok
+### start the Django server + launch ngrok
 
 ```bash
 python manage.py runserver
 ./ngrok http 8000
 ```
 
-### paste the webhook URL in LINE Developer Console
+### paste the webhook URL in LINE developer console
 
 ```bash
 # Example webhook URL
