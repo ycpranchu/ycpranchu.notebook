@@ -8,7 +8,7 @@ targets: Linebot + Django framework, chatbot implementation.
 Introduction to Django
 ---
 
-### Architecture
+### architecture
 
 Django is a web framework based on Python, and its architecture is different from the three major frontend frameworks:
 
@@ -27,7 +27,7 @@ Django is a web framework based on Python, and its architecture is different fro
 - `Template` contains the original HTML.
 - `Views` displays the web content.
 
-### Complete Workflow
+### complete workflow
 
 ![](https://i.imgur.com/E1bQ5Sp.png)
 
@@ -36,7 +36,7 @@ Project Implementation
 
 <Steps>
 
-### Create a Virtual Environment
+### create a virtual environment
 
 ```bash
 pip install virtualenv
@@ -62,14 +62,14 @@ If you encounter permission issues:
 Set-ExecutionPolicy RemoteSigned
 ```
 
-### Install Required Packages
+### install Required Packages
 
 ```bash
 pip install Django
 pip install line-bot-sdk
 ```
 
-### Create a Project
+### create a Project
 
 ```bash
 cd D:/
@@ -77,7 +77,7 @@ django-admin startproject 'project-name'
 cd 'project-name'
 ```
 
-### Create an App
+### create an App
 
 You can create multiple Line Bot apps.
 
@@ -92,7 +92,7 @@ Setting up setting.py
 
 <Steps>
 
-### Create Two Folders
+### create Two Folders
 
 ```bash
 md static
@@ -102,38 +102,38 @@ md templates
 - `static` for static data such as images and files.
 - `templates` for storing pre-written HTML.
 
-### Configure Channel Access Token & Channel Secret
+### configure Channel Access Token & Channel Secret
 
 ![](https://i.imgur.com/3svMhdL.png)
 
-### Add the App Name to INSTALLED_APPS
+### add the App Name to INSTALLED_APPS
 
 ![](https://i.imgur.com/ijFM6yl.png)
 
-### Set the Templates Folder Path in TEMPLATES
+### set the Templates Folder Path in TEMPLATES
 
 ![](https://i.imgur.com/XWdj2iA.png)
 
-### Language and Timezone Settings
+### language and Timezone Settings
 
 ![](https://i.imgur.com/pT3WV8d.png)
 
-### Add the Static Path
+### add the Static Path
 
 ![](https://i.imgur.com/9MdavbV.png)
 
-### Development Stage Configuration
+### development Stage Configuration
 
 ![](https://i.imgur.com/rJ3R5PW.png)
 
-### Initialize Database Migration
+### initialize Database Migration
 
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-### Create an Admin Account
+### create an Admin Account
 
 ```bash
 python manage.py createsuperuser
@@ -141,7 +141,7 @@ python manage.py createsuperuser
 
 ![](https://i.imgur.com/dUfn81s.png)
 
-### Run the Server for Testing
+### run the Server for Testing
 
 ```bash
 python manage.py runserver # Open a browser and go to 127.0.0.1:8000/admin
@@ -213,7 +213,7 @@ def callback(request):
         return HttpResponseBadRequest()
 ```
 
-### Explanation
+### explanation
 
 - When LINE server receives a message, it actively sends it to LINE BOT. Therefore, you need to inform the server of the location to send when a message is received. This is the webhook URL.
 - When the callback function is called, it means that the LINE BOT's webhook sent by the LINE server is received.
@@ -223,18 +223,18 @@ Prepare for running
 
 <Steps>
 
-### Configure ngrok
+### configure ngrok
 
 https://ngrok.com/download
 
-### Start the Django Server + Launch ngrok
+### start the Django Server + Launch ngrok
 
 ```bash
 python manage.py runserver
 ./ngrok http 8000
 ```
 
-### Paste the webhook URL in LINE Developer Console
+### paste the webhook URL in LINE Developer Console
 
 ```bash
 # Example webhook URL
