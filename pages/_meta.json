@@ -1,0 +1,10 @@
+{
+    "index": "Welcome",
+    "Linebot": {
+        "title": "Linebot Design"
+    },
+    "index_page": {
+        "title": "About Me",
+        "type": "page"
+    }
+}

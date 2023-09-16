@@ -1,0 +1,249 @@
+Linebot + Django Demo
+===
+
+import { Steps } from 'nextra/components'
+
+targets: Linebot + Django framework, chatbot implementation.
+
+Introduction to Django
+---
+
+### Architecture
+
+Django is a web framework based on Python, and its architecture is different from the three major frontend frameworks:
+
+- `Django` Model-Template-Views architecture
+- `React.js` / `Angular.js` / `Vue.js` Model-View-Contorller architecture
+
+| MTV | MVC | 
+| -------- | -------- |
+| Model | Model	|
+| Template | View |
+| Views | Controller |
+
+![](https://i.imgur.com/tx0zsYj.png)
+
+- `Model` retrieves backend data.
+- `Template` contains the original HTML.
+- `Views` displays the web content.
+
+### Complete Workflow
+
+![](https://i.imgur.com/E1bQ5Sp.png)
+
+Project Implementation
+---
+
+<Steps>
+
+### Create a Virtual Environment
+
+```bash
+pip install virtualenv
+
+# Create a virtual environment
+virtualenv 'linebot-env'
+
+# Activate the virtual environment
+.\linebot-env\Scripts\activate
+
+# Deactivate the virtual environment
+deactivate
+```
+
+If you encounter permission issues:
+
+![](https://i.imgur.com/7PqZUGN.png)
+
+[Solution](https://israynotarray.com/other/20200510/1067127387/)
+
+```bash
+# Windows PowerShell
+Set-ExecutionPolicy RemoteSigned
+```
+
+### Install Required Packages
+
+```bash
+pip install Django
+pip install line-bot-sdk
+```
+
+### Create a Project
+
+```bash
+cd D:/
+django-admin startproject 'project-name'
+cd 'project-name'
+```
+
+### Create an App
+
+You can create multiple Line Bot apps.
+
+```bash
+python manage.py startapp 'app-name'
+```
+
+</Steps>
+
+Setting up setting.py
+---
+
+<Steps>
+
+### Create Two Folders
+
+```bash
+md static
+md templates
+```
+
+- `static` for static data such as images and files.
+- `templates` for storing pre-written HTML.
+
+### Configure Channel Access Token & Channel Secret
+
+![](https://i.imgur.com/3svMhdL.png)
+
+### Add the App Name to INSTALLED_APPS
+
+![](https://i.imgur.com/ijFM6yl.png)
+
+### Set the Templates Folder Path in TEMPLATES
+
+![](https://i.imgur.com/XWdj2iA.png)
+
+### Language and Timezone Settings
+
+![](https://i.imgur.com/pT3WV8d.png)
+
+### Add the Static Path
+
+![](https://i.imgur.com/9MdavbV.png)
+
+### Development Stage Configuration
+
+![](https://i.imgur.com/rJ3R5PW.png)
+
+### Initialize Database Migration
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+### Create an Admin Account
+
+```bash
+python manage.py createsuperuser
+```
+
+![](https://i.imgur.com/dUfn81s.png)
+
+### Run the Server for Testing
+
+```bash
+python manage.py runserver # Open a browser and go to 127.0.0.1:8000/admin
+```
+
+![](https://i.imgur.com/YuLOVYZ.png)
+
+Login Screen
+
+![](https://i.imgur.com/NZEEbiN.png)
+
+</Steps>
+
+Configure urls.py
+---
+
+```python filename="urls.py"
+from django.contrib import admin
+from django.urls import path
+from example import views
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('callback', views.callback),
+]
+```
+
+Configure views.py
+---
+
+```python filename="views.py"
+from django.shortcuts import render
+
+# Create your views here.
+from django.conf import settings
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
+from django.views.decorators.csrf import csrf_exempt
+
+from linebot import LineBotApi, WebhookParser
+from linebot.exceptions import InvalidSignatureError, LineBotApiError
+from linebot.models import MessageEvent, TextSendMessage
+
+line_bot_api = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
+parser = WebhookParser(settings.LINE_CHANNEL_SECRET)
+
+
+@csrf_exempt
+def callback(request):
+    if request.method == 'POST':
+        signature = request.META['HTTP_X_LINE_SIGNATURE']
+        body = request.body.decode('utf-8')
+
+        try:
+            events = parser.parse(body, signature)
+        except InvalidSignatureError:
+            return HttpResponseForbidden()
+        except LineBotApiError:
+            return HttpResponseBadRequest()
+
+        for event in events:
+            if isinstance(event, MessageEvent):
+                mtext=event.message.text
+                message=[]
+                message.append(TextSendMessage(text=mtext))
+                line_bot_api.reply_message(event.reply_token,message)
+
+        return HttpResponse()
+    else:
+        return HttpResponseBadRequest()
+```
+
+### Explanation
+
+- When LINE server receives a message, it actively sends it to LINE BOT. Therefore, you need to inform the server of the location to send when a message is received. This is the webhook URL.
+- When the callback function is called, it means that the LINE BOT's webhook sent by the LINE server is received.
+
+Prepare for running
+---
+
+<Steps>
+
+### Configure ngrok
+
+https://ngrok.com/download
+
+### Start the Django Server + Launch ngrok
+
+```bash
+python manage.py runserver
+./ngrok http 8000
+```
+
+### Paste the webhook URL in LINE Developer Console
+
+```bash
+# Example webhook URL
+https://yourdomain_name/callback
+```
+
+</Steps>
+
+Done!
+---
+
+![](https://i.imgur.com/oUbUsZk.png)
