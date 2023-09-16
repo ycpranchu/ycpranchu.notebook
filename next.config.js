@@ -3,7 +3,7 @@
  **/
 
 const isProduction = process.env.NODE_ENV === "production";
-const assetPrefix = isProduction ? "/ycpranchu.github.io/.next/server/pages/" : "";
+const assetPrefix = isProduction ? "/ycpranchu.github.io/.next/server/pages" : "";
 
 const withNextra = require('nextra')({
     theme: 'nextra-theme-docs',
