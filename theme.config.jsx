@@ -36,8 +36,6 @@ export default {
     sidebar: {
         defaultMenuCollapseLevel: 1,
         autoCollapse: true,
-    },
-    sidebar: {
         titleComponent({ title }) {
             if (title === 'About') {
                 return <>{title}</>

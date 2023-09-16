@@ -1,8 +1,25 @@
 {
     "index": "Welcome",
+
+    "Web-Design": {
+        "title": "Web Design"
+    },
     "Linebot": {
         "title": "Linebot Design"
     },
+    "Ray-Tracing": {
+        "title": "Ray Tracing"
+    },
+    "ROS": {
+        "title": "ROS"
+    },
+    "Cuda": {
+        "title": "Cuda"
+    },
+    "CS231n": {
+        "title": "CS231n"
+    },
+
     "about_me": {
         "title": "About Me",
         "type": "page"

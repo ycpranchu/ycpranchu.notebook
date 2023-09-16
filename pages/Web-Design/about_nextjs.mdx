@@ -1,0 +1,252 @@
+About Next.js
+===
+
+Source: https://nextjs.org/learn/foundations/about-nextjs
+
+Next.js is a flexible **React framework** that gives you building blocks to create fast web **applications**.
+
+Foundations
+---
+
+### Building Blocks of a Web Application
+
+There are a few things you need to consider when building modern applications. Such as:
+
+- **User Interface** - how users will consume and interact with your application.
+- **Routing** - how users navigate between different parts of your application.
+- **Data Fetching** - where your data lives and how to get it.
+- **Rendering** - when and where you render static or dynamic content.
+- **Integrations** - what third-party services you use (CMS, auth, payments, etc) and how you connect to them.
+- **Infrastructure** - where you deploy, store, and run your application code (Serverless, CDN, Edge, etc).
+- **Performance** - how to optimize your application for end-users.
+- **Scalability** - how your application adapts as your team, data, and traffic grow.
+- **Developer Experience** - your team’s experience building and maintaining your application.
+
+### What is Next.js?
+
+Next.js is a React **framework** that gives you building blocks to create web applications.
+
+By framework, we mean Next.js handles the tooling and configuration needed for React, and provides additional structure, features, and optimizations for your application.
+
+![](public\Web-Design\about_nextjs_1.png)
+
+From JavaScript to React
+---
+
+### Imperative vs Declarative Programming
+
+Imperative Programming
+
+```javascript
+<!-- index.html -->
+<script type="text/javascript">
+  const app = document.getElementById('app');
+  const header = document.createElement('h1');
+  const headerContent = document.createTextNode('Develop. Preview. Ship. 🚀');
+  header.appendChild(headerContent);
+  app.appendChild(header);
+</script>
+```
+
+**React: Declarative Programming**
+
+```javascript
+<script type="text/jsx">
+  const app = document.getElementById("app")
+  ReactDOM.render(<h1>Develop. Preview. Ship. 🚀</h1>, app)
+</script>
+```
+
+## React Core Concepts
+
+- Components
+- Props
+- State
+
+## Building UI with Components
+
+Think of **components** as LEGO bricks, you can take these individual bricks and combine them together to form larger structures.
+
+![](public\Web-Design\about_nextjs_2.png)
+
+Mention:
+
+1. React components should be capitalized to distinguish them from plain HTML and JavaScript.
+2. Use React components the same way you’d use regular HTML tags, with angle brackets **\<\/\>**.
+
+```javascript
+<script type="text/jsx">
+
+  const app = document.getElementById("app")
+
+  function Header() {
+    return <h1>Develop. Preview. Ship. 🚀</h1>;
+  }
+
+  // Capitalize the React Component
+  ReactDOM.render(<Header />, app);
+</script>
+```
+
+### Nesting Components
+
+**Nest** React components inside each other like you would regular HTML elements.
+
+```javascript
+function Header() {
+  return <h1>Develop. Preview. Ship. 🚀</h1>;
+}
+
+function HomePage() {
+  return (
+    <div>
+      ...
+      <Header />
+    </div>
+  );
+}
+
+ReactDOM.render(<HomePage />, app);
+```
+
+Components Tree
+
+![](public\Web-Design\about_nextjs_3.png)
+
+## Displaying Data with Props
+
+### Using props
+
+In your HomePage component, you can pass a custom title prop to the Header component, just like you’d pass HTML attributes:
+
+```javascript
+function HomePage() {
+  return (
+    <div>
+      <Header title="React 💙" />
+    </div>
+  );
+}
+```
+
+Since props is an object, you can use **object destructuring** to explicitly name the values of props inside your function parameters:
+
+```javascript
+function Header({ title }) {
+  console.log(title);
+  return <h1>title</h1>;
+}
+```
+
+### Using Variables in JSX
+
+You can add any **JavaScript expression** (something that evaluates to a single value) inside curly braces. For example:
+
+1. An **object property** with dot notation.
+
+```javascript
+function Header(props) {
+  return <h1>{props.title}</h1>;
+}
+```
+
+2. A template literal:
+
+```javascript
+function Header({ title }) {
+  return <h1>{`Cool ${title}`}</h1>;
+}
+```
+
+3. The returned value of a function.
+
+```javascript
+function createTitle(title) {
+  if (title) {
+    return title;
+  } else {
+    return 'Default title';
+  }
+}
+
+function Header({ title }) {
+  return <h1>{createTitle(title)}</h1>;
+}
+```
+    
+4. Or ternary operators.
+
+```javascript
+function Header({ title }) {
+  return <h1>{title ? title : 'Default Title'}</h1>;
+}
+```
+
+## Adding Interactivity with State
+
+### Iterating through lists
+
+Use the `array.map()` method to iterate over the array and use an **arrow function** to map a name to a list item:
+
+```javascript
+function HomePage() {
+  const names = ['Ada Lovelace', 'Grace Hopper', 'Margaret Hamilton'];
+
+  return (
+    <div>
+      <Header title="Develop. Preview. Ship. 🚀" />
+      <ul>
+        {names.map((name) => (
+          <li key={name}>{name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+### Listening to Events
+
+To make the button do something when clicked, you can make use of the `onClick` event, and call the `handleClick` function when the `onClick` event is triggered:
+
+```javascript
+function HomePage() {
+  //    ...
+  function handleClick() {
+    console.log('increment like count');
+  }
+
+  return (
+    <div>
+      {/* ... */}
+      <button onClick={handleClick}>Like</button>
+    </div>
+  );
+}
+```
+
+### State and Hooks
+
+Call your state updater function, `setLikes` in your `HomePage` component, let's add it inside the `handleClick()` function you previously defined:
+
+```javascript
+function HomePage() {
+  // ...
+  const [likes, setLikes] = React.useState(0);
+
+  function handleClick() {
+    setLikes(likes + 1);
+  }
+
+  return (
+    <div>
+      {/* ... */}
+      <button onClick={handleClick}>Likes ({likes})</button>
+    </div>
+  );
+}
+```
+
+## Resources
+
+- [React Document](https://react.dev/learn)
