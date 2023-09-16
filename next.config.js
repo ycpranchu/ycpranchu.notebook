@@ -20,8 +20,7 @@ const nextConfig = {
     reactStrictMode: true,
     swcMinify: true,
     trailingSlash: true,
-    assetPrefix,
-    basePath: assetPrefix,
+    basePath: "/ycpranchu.github.io",
 };
 
 module.exports = {
