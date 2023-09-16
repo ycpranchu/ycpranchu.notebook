@@ -11,14 +11,20 @@ const withNextra = require('nextra')({
     defaultShowCopyCode: true,
     latex: true,
     staticImage: true,
+});
 
+const nextConfig = {
     images: {
         unoptimized: true,
     },
     reactStrictMode: true,
     swcMinify: true,
     trailingSlash: true,
+    assetPrefix,
     basePath: assetPrefix,
-});
+};
 
-module.exports = withNextra();
+module.exports = {
+    ...withNextra(),
+    ...nextConfig,
+};
