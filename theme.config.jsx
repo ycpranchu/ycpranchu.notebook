@@ -16,7 +16,12 @@ export default {
         const { asPath } = useRouter()
         if (asPath !== '/') {
             return {
-                titleTemplate: '%s - SWR'
+                titleTemplate: '%s 🎃'
+            }
+        }
+        else {
+            return {
+                titleTemplate: 'ycpin\'s Notebook 🎃'
             }
         }
     },

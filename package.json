@@ -1,14 +1,9 @@
 {
-  "name": "ycpranchu.github.io",
+  "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "export": "next build && next export && touch out/.nojekyll",
-    "lint": "next lint --max-warnings=0",
-    "type-check": "tsc",
-    "deploy": "gh-pages -d out -t true",
-    "prepare": "husky install"
+    "dev": "next dev",
+    "start": "next start"
   },
   "dependencies": {
     "next": "^13.4.19",
@@ -19,11 +14,5 @@
   },
   "engines": {
     "node": ">=18"
-  },
-  "lint-staged": {
-    "src/**/*.{ts,json,md}": [
-      "prettier --write",
-      "eslint --fix --max-warnings=0"
-    ]
   }
 }
