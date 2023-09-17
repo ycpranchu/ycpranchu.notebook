@@ -1,0 +1,457 @@
+蒙特卡洛路徑追蹤及其 C++ 實現
+===
+
+- Source: [CSDN blog Link](https://blog.csdn.net/weixin_44176696/article/details/113418991#t0)
+- Github Repository: https://github.com/ycpranchu/raytracing-demo
+
+![](public/images/Ray-Tracing/demo.gif)
+
+光柵化
+---
+
+![](https://hackmd.io/_uploads/S1k8tWLC3.png)
+
+▲ 左邊為光柵化原理，右邊則是光線追蹤路徑
+
+傳統計算機圖學，使用光柵化的方法生成像素
+
+![](https://hackmd.io/_uploads/SyzocbU0n.png)
+
+1. 將物件轉換為基本圖形組合 (三角形)
+2. 將三角形投影到平面上
+
+- 無法處理視野外的物件影像，如水面、玻璃的倒影
+
+![](https://hackmd.io/_uploads/S1yFtWLRn.png)
+
+光線追蹤
+---
+
+從相機方向開始向場景投射射線，試圖找出到達光源的可能路徑
+
+**路徑追蹤**技術是光線追蹤的一個分支，通過向場景中投射光線，並且模擬光線的行徑，在物體和光源之間找出一條條可行的路徑，最後返回積累的顏色
+
+### 光線追蹤步驟
+
+1. RayCasting：向場景投射光線，光線碰到哪個實體，該像素就代表這個實體，並需要為這個像素定義顏色
+
+    ![](https://hackmd.io/_uploads/S1y43W8An.png)
+
+2. **渲染方程式**：渲染一個像素的顏色就是求解渲染方程的過程
+
+### 渲染方程式
+
+一個點的光照由 2 部分組成，分別是：
+
+- 該點自己發出的光
+- 來自任意方向上的光打到該點**積累**形成的光
+
+![](https://hackmd.io/_uploads/BJzhaZI0h.png)
+
+**半球積分**：計算法向半球的**積累光**
+
+![](https://hackmd.io/_uploads/ryXkAbIR2.png)
+
+- L(x) → x 點的光強度
+- E(x) → x 點發出的光
+- q → 從 p 點出發,方向為 ωi 的光命中了 q 點的物體
+- θ → ωi 與 q 點法向量的夾角
+
+渲染方程的**遞歸**形式，多個連續折射乘上 **cosθ**
+
+![](https://hackmd.io/_uploads/BklKAZL02.png)
+
+- 圖片錯誤：**θ 是出射光 wi 和出發點 p 點的法線的夾角**，也就是 Lambert’s cosine law
+
+### 蒙特卡洛方法
+
+渲染方程是一個困難積分，無法精確地計算其原函數
+
+![](https://hackmd.io/_uploads/BJqPGGLAn.png)
+
+- hint: 往 x 區間上面丟豆子，並且計算豆子命中的位置的 y 的值，最後把他們加起來作為積分的估計
+
+若**均勻**丟，就能得到上圖等寬度的柱狀圖，但豆子**命中的位置**也是機率問題
+
+使用 x 的機率密度函數，來對積分進行**估計**，x 點採樣的機率密度函數為 PDF(x)，被積函數為 f(x)，那麽 x 點采樣的等於
+
+![](https://hackmd.io/_uploads/HJpTXGUA2.png)
+
+#### 作法
+
+首先產生一堆符合概率密度函數 PDF 分布的隨機變量 x，然後對每一個 x 都計算 f(x) / PDF(x)，最後求他們的**均值**即可
+
+![](https://hackmd.io/_uploads/r1rSIzLRn.png)
+
+採樣的次數越多，誤差越少
+
+### 渲染方程求解
+
+![](https://hackmd.io/_uploads/BymVsf8R2.png)
+
+法向半球內**均勻分布的射線方向**，x 的 PDF(x) = 1/2 π
+
+```cpp
+pathTracing(p)
+{
+	L = 0.0
+	for(i in SAMPLE)
+	{
+		wi = random()	// 隨機選擇一個方向
+		if(wi hit q)	// 射線 wi 擊中 q 點
+		{
+			cosine = dot(np, wi)	// p 點法向量 np 和 wi 的夾角余弦值
+			L += cosine * pathTracing(q) / PDF(wi)
+		}
+	}
+	return L / SAMPLE	// 返回均值
+}
+```
+
+若 SAMPLE = 100
+
+![](https://hackmd.io/_uploads/HJSJAfICh.png)
+
+- 計算量以指數成長
+ 
+只有限制 SAMPLE = 1 才能防止指數增長，而一次採樣肯定是不準確的，於是對每個像素發射多條光線，然後平均他們的結果
+
+![](https://hackmd.io/_uploads/HysZQQIC2.png)
+
+每個像素的光線數目叫做 **SPP**，即（**Sample Pre Pixel**），第一次採樣時發射數條光線，後續採樣只隨機選取一個方向發射光線並遞歸計算
+
+```cpp
+// 追蹤一條光線
+pathTracing(p)
+{
+	L = 0.0
+	wi = random()	// 隨機選擇一個方向
+	if(wi hit q)	// 射線 wi 擊中 q 點
+	{
+		cosine = dot(nq, wi)	// q 點法向量 nq 和 wi 的夾角余弦值
+		L += cosine * pathTracing(q) / PDF(wi)
+	}
+
+	return L
+}
+
+// 對一個像素投射 SPP 條光線
+L = 0.0
+for(i in SPP)
+{
+	wi = random()	// 隨機選擇一個方向
+	if(wi hit q)	// 射線 wi 擊中 q 點
+	{
+		L += pathTracing(q) / PDF(wi)
+	}
+}
+L /= SPP
+```
+
+## C++ Implementaion
+
+### OpenGL
+
+安裝環境
+
+- visual studio 2019
+- vcpkg
+
+![](https://hackmd.io/_uploads/Sk88D3IR2.png)
+
+其中三個 C++庫（GLEW，freeglut，glm）以及 OpenGL 的 SOIL2 函式庫，我們通過 vcpkg 來進行安裝
+
+```bash
+vcpkg install xxx
+```
+
+### 準備工作
+
+[svpng.inc](https://github.com/miloyip/svpng)
+
+```cpp
+/*!
+    \brief 以 PNG 格式存儲 RGB/RGBA 影像
+    \param out 輸出流（使用 FILE*）。
+    \param w 影像寬度。(<16383)
+    \param h 影像高度。
+    \param img 影像像素數據，內容為 24 位 RGB 或 32 位 ARGB 格式。
+    \param alpha 影像是否含有 alpha 通道。
+*/
+void svpng(FILE* out, unsigned w, unsigned h, const unsigned char* img, int alpha);
+```
+
+#### 以 svpng 產生圖片
+
+- create_image.cpp
+
+```cpp
+#include <iostream>
+#include "svpng.inc"
+
+void test_rgb() {
+    unsigned char rgb[256 * 256 * 3], *p = rgb;
+    unsigned x, y;
+    FILE* fp;
+    fopen_s(&fp, "image.png", "wb");
+
+    for (y = 0; y < 256; y++) // focus on every pixel
+    {
+        for (x = 0; x < 256; x++) 
+        {
+            *p++ = (unsigned char)x;    /* R */
+            *p++ = (unsigned char)y;    /* G */
+            *p++ = 128;                 /* B */
+        }
+    }
+
+    svpng(fp, 256, 256, rgb, 0); // svpng function
+    fclose(fp);
+}
+
+int main(int argc, char** argv)
+{
+    test_rgb();
+    return 0;
+}
+```
+
+![](https://hackmd.io/_uploads/Byz2BEvR2.png)
+
+
+#### 多線程加速
+
+```cpp
+#include <omp.h>
+
+omp_set_num_threads(50); // threads 個數
+#pragma omp parallel for
+
+for()
+{
+    ...
+}
+```
+
+### 相機配置與光線生成
+
+以投影點坐標減去相機坐標，得到**視線的方向向量**
+
+![](https://hackmd.io/_uploads/H101K4vC2.png)
+
+```cpp
+double* image = new double[WIDTH * HEIGHT * 3];
+memset(image, 0.0, sizeof(double) * WIDTH * HEIGHT * 3);
+double* p = image;
+
+for (int i = 0; i < HEIGHT; i++)
+{
+    for (int j = 0; j < WIDTH; j++)
+    {
+        // 像素坐標轉投影平面坐標
+        double x = 2.0 * double(j) / double(WIDTH) - 1.0;
+        double y = 2.0 * double(HEIGHT - i) / double(HEIGHT) - 1.0;
+
+        vec3 coord = vec3(x, y, SCREEN_Z);          // 計算投影平面坐標
+        vec3 direction = normalize(coord - EYE);    // 計算光線投射方向
+        vec3 color = direction;
+
+        *p = color.x; p++;  // R 通道
+        *p = color.y; p++;  // G 通道
+        *p = color.z; p++;  // B 通道
+    }
+}
+
+imshow(image); // similar to test_rgb()
+```
+
+### 三角形與光線求交
+
+#### 結構定義
+
+```cpp
+// 光線
+typedef struct Ray
+{
+    vec3 startPoint = vec3(0, 0, 0);    // 起點
+    vec3 direction = vec3(0, 0, 0);     // 方向
+} Ray;
+```
+
+定義
+
+- 是否相交
+- 交點位置，用於作為我們下一次彈射的起點
+- 相交位置的表面屬性：比如法向量，表面顏色，材質屬性，發光度，粗糙度等
+
+```cpp
+// 物體表面材質定義
+typedef struct Material
+{
+    bool isEmissive = false;        // 是否發光
+    vec3 normal = vec3(0, 0, 0);    // 法向量
+    vec3 color = vec3(0, 0, 0);     // 顏色
+} Material;
+
+// 光線求交結果
+typedef struct HitResult
+{
+    bool isHit = false;             // 是否命中
+    double distance = 0.0f;         // 與交點的距離
+    vec3 hitPoint = vec3(0, 0, 0);  // 光線命中點
+    Material material;              // 命中點的表面材質
+} HitResult;
+```
+
+#### 三角形物件
+
+```cpp
+class Shape
+{
+public:
+    Shape(){}
+    virtual HitResult intersect(Ray ray) { return HitResult(); }
+};
+
+// 三角形
+class Triangle : public Shape
+{
+public:
+    Triangle(){}
+    Triangle(vec3 P1, vec3 P2, vec3 P3, vec3 C) 
+    { 
+        p1 = P1, p2 = P2, p3 = P3; 
+        material.normal = normalize(cross(p2 - p1, p3 - p1)); material.color = C;
+    }
+    vec3 p1, p2, p3;    // 三頂點
+    Material material;  // 材質
+
+    // 與光線求交
+    HitResult intersect(Ray ray) 
+    { 
+        HitResult res;
+        // ...
+        return res; 
+    };
+};
+```
+
+#### 求交計算
+
+首先判斷光線和三角形所在平面是否有交點
+
+![](https://hackmd.io/_uploads/HyxC1rvA2.png)
+
+1. 其中 t 表示了射線起點到交點的距離，如果 **t 小於 0 表示三角形在攝像機之後**
+2. 然後判斷點是否在三角形中，我們連接頂點與 P 點，然後判斷連線與邊的**外積方向**是否與法向量一致。如果三個頂點的判斷都通過，說明 P 在三角形中，否則不在
+
+![](https://hackmd.io/_uploads/SyH7THDA3.png)
+
+```cpp
+// 與光線求交
+HitResult intersect(Ray ray) 
+{ 
+    HitResult res;
+
+    vec3 S = ray.startPoint;        // 射線起點
+    vec3 d = ray.direction;         // 射線方向
+    vec3 N = material.normal;       // 法向量
+    if (dot(N, d) > 0.0f) N = -N;   // 獲取正確的法向量
+
+    // 如果視線和三角形平行
+    if (fabs(dot(N, d)) < 0.00001f) return res;
+
+    // 距離
+    float t = (dot(N, p1) - dot(S, N)) / dot(d, N);
+    if (t < 0.0005f) return res;    // 如果三角形在相機背面
+
+    // 交點計算
+    vec3 P = S + d * t;
+
+    // 判斷交點是否在三角形中
+    vec3 c1 = cross(p2 - p1, P - p1);
+    vec3 c2 = cross(p3 - p2, P - p2);
+    vec3 c3 = cross(p1 - p3, P - p3);
+    vec3 n = material.normal;   // 需要 "原生法向量" 來判斷
+    if (dot(c1, n) < 0 || dot(c2, n) < 0 || dot(c3, n) < 0) return res;
+
+    // 返回結果
+    res.isHit = true;
+    res.distance = t;
+    res.hitPoint = P;
+    res.material = material;
+    res.material.normal = N;    // 返回正確的法向量
+    return res; 
+};
+
+```
+
+#### 步驟
+
+1. 我們在場景中添加一個三角形
+2. 隨後遍歷場景，求外積並且返回 hit 的結果
+3. 然後我們逐像素的投射光線，並且輸出光線第一個碰到的交點的顏色
+
+### 球面隨機向量
+
+1. 渲染方程的求解中，我們在法向半球上隨機選取一個方向作為光線的彈射方向。
+2. 隨機選取 3 個坐標 xyz，如果坐標**不在**單位球內，重新選取 xyz，產生**均勻分布**的球面隨機向量
+3. 根據碰撞點的表面，生成分布在法向半球的隨機向量。一種可行的策略是使用拒絕法，一旦隨機向量不在法向半球內，我們就拒絕它，同時再產生一個新的隨機向量
+
+有一種更加簡潔的求法向半球隨機向量的方法，就是以法向量的終點為球心，產生單位球面上的隨機向量，然後連接法向量起點和隨機向量的終點就是最終的隨機方向 d
+
+![](https://hackmd.io/_uploads/HkYNKLDA3.png)
+
+### 路徑追蹤
+
+#### 直接光照
+
+我們考慮直接光照。如果射線碰到光源，返回光源的顏色，否則返回純黑
+
+- 增大每個像素的採樣次數（SPP，代碼中的 SAMPLE 參數）能提升品質
+
+#### 間接光照
+
+直接光照僅考慮了渲染方程的發光。事實上除了來自光源的直接光照，還有來自其他物體反射的光，間接光照的計算公式，遞歸計算。但是值得注意的是遞歸的出口，可以簡單的使用一個**遞歸深度 depth** 來控制
+
+- 另一方法：每次產生隨機數 P，如果 P 小於某個閾值就結束，此外每次返回時應該將顏色除以 P 以保證顏色的**期望值**始終不變
+
+![](https://hackmd.io/_uploads/S1rE2UPR2.png)
+
+#### 繪制球體
+
+![](https://hackmd.io/_uploads/H1fqaIw0h.png)
+
+#### 鏡面反射
+
+假設入射光有 s 的概率被反射，否則繼續漫反射。那麽我們的光追要用如下的流程：先產生一個隨機數，如果其小於反射率，那麽我們光線被反射，於是通過入射光和法向量的夾角計算反射光線，並且繼續遞歸，否則我們正常地隨機取一個方向投射光線
+
+左到右分別是 0.3，0.6，0.9 的反射率：
+
+![](https://hackmd.io/_uploads/BymS08w0n.png)
+
+如果想模擬粗糙的反射，那麽在生成反射光線方向的時候，加入隨機向量的擾動即可
+
+左到右分別是 0.2，0.4，0.6 的粗糙度：
+
+![](https://hackmd.io/_uploads/rkvsCLPCh.png)
+
+#### 折射
+
+當隨機數小於 reflectRate 的時候發生反射，隨機數在 reflectRate 和 refractRate 之間發生折射，隨機數大於 refractRate 的時候才是漫反射：
+
+![](https://hackmd.io/_uploads/rkml1PDC2.png)
+
+![](https://hackmd.io/_uploads/ryTNyDvAh.png)
+
+#### 抗鋸齒
+
+在發射光線的時候，在光線的方向上加一個小的偏移量，以實現一個像素多個方向的採樣
+
+```cpp
+// MSAA
+x += (randf() - 0.5f) / double(WIDTH);
+y += (randf() - 0.5f) / double(HEIGHT);
+```
+
+![](https://hackmd.io/_uploads/r1-DkwvAn.png)
