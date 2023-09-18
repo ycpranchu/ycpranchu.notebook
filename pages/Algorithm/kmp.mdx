@@ -1,0 +1,74 @@
+KMP Algorithm for Pattern Searching
+===
+
+import { Steps } from 'nextra/components'
+
+- 找兩字串的**共同前後綴** (Longest Proper Prefix Which Is Also Suffix)
+- 拿子串匹配成功的部分的前綴去對準自己的後綴，得出下一位開始比較的 index 值
+
+![](https://hackmd.io/_uploads/ryxSPLaBD2.png)
+
+## Step by Step
+
+定義問題：母字串為 `str`，子字串為 `needle`，以 `needle` 比較 `str`，找出子字串 `needle` 位置
+
+<Steps>
+
+### 建立 next table
+
+字串中每個字母都對應 next table 中的數字：代表比對這個字母時，等同於**比對從頭數來的第幾個字母**
+
+![](public/images/algorithm/kmp.gif)
+
+- `needle` 字串與自身進行比較，產生 next table
+
+```cpp
+vector <int> nextTable(needle.size());
+
+int p = 1, k = 0;
+while (p < needle.size()) { 
+    if (needle[p] == needle[k]) {
+        p += 1;
+        k += 1;
+        nextTable[p - 1] = k;
+    }
+    else if (k <= 0) {
+        p += 1;
+    } 
+    else {
+        k = nextTable[k - 1];
+    }
+}
+```
+
+#### 解析：`k = nextTable[k - 1]` 
+
+代表第 `k` 個字母比對錯誤，我們直接從第 `nextTable[k - 1]` 的那個字母繼續比對，等同於查表尋找第 `k - 1` 字母於字串從頭數來的第幾個位置
+
+### 利用 next table 比對字串
+
+概念等同於生成 next table，要注意的是 `p = 0`，因為是不同字串的從頭比對
+
+![](public/images/algorithm/kmp_example.jpg)
+
+```cpp
+p = 0, k = 0;
+while (p < str.size()) {
+    if (str[p] == needle[k]) {
+        p += 1;
+        k += 1;
+
+        if (k == needle.size()) return p - k;
+    }
+    else if (k <= 0) {
+        p += 1;
+    }
+    else {
+        k = nextTable[k - 1];
+    }
+}
+
+return -1;
+```
+
+</Steps>

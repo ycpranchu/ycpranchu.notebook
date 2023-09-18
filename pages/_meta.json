@@ -1,6 +1,9 @@
 {
     "index": "Home",
 
+    "Algorithm": {
+        "title": "Algorithm"
+    },
     "Web-Design": {
         "title": "Web Design"
     },
