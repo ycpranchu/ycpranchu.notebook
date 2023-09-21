@@ -1,4 +1,5 @@
 {
-    "kmp": "KMP Algorithm",
-    "manacher": "Manacher's Algorithm"
+    "kmp": "KMP",
+    "manacher": "Manacher",
+    "floyd_cycle_detection": "Floyd Cycle Detection"
 }

@@ -1,0 +1,41 @@
+Floyd Cycle Detection Algorithm
+===
+
+import { Steps } from 'nextra/components'
+
+- 利用 **快慢指針 (Fast-slow Pointers)** 可以輕易證明一個 graph 內有環 (cycle)
+- **問題是，如何找到環的起點 (cycle beginning)**
+
+![](public/images/algorithm/floyd.jpg)
+
+Step by Step
+---
+
+<Steps>
+
+### 定義變數
+
+1. 兩個變數 L 和 x，它們都可以等於0
+2. 當 `L = 0` 時，表示一開始兩個指針（fast 和 slow）就位於循環中，而當 `x = 0` 時，表示第一次相遇就恰好發生在循環的起點
+
+### 推導
+
+首次相遇可以表示為以下等式：`2(L + x) = L + nC + x`
+
+- `(L + x)` 代表 **slow pointer** 所走的步數
+- `(L + nC + x)` 代表 **fast pointer** 所走的步數
+
+為什麼 **fast pointer** 要多走 nC 步呢？這是因為在指針相遇之前，**fast pointer** 可能經過了多次循環，而且 **fast pointer** 所走的步數為 **slow pointer** 的兩倍
+
+於是這個等式可以簡化為 `L + x = nC`
+
+### 證明
+
+接下來，我們需要證明 pointers 一定會在 cycle 的起點相遇：
+
+1. **slow pointer** 回到起點 0，走了 L 步到達 cycle 的起點
+2. **fast pointer** 將從第一次相遇的地方 L+x 開始，走相同的 L 步到達 cycle 的起點
+
+`(L + x) + L` 代入我們之前得到的等式，等於 `nC + L`，也就是循環的起點
+
+</Steps>
