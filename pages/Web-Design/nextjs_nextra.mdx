@@ -1,0 +1,231 @@
+Create a Next.js + Nextra Blog 
+===
+
+This article will lead you to build Nextra, a **Markdown-based** Blog.
+
+![](https://hackmd.io/_uploads/Skg4d69J6.png)
+
+Nextra
+---
+
+**Nextra is a framework on top of Next.js**, that lets you build **content focused websites**. It has all the great features from Next.js, plus extra power to create Markdown-based content with ease.
+
+Step by Step
+---
+
+import { Steps } from 'nextra/components'
+ 
+<Steps>
+
+### Start from new project
+
+Run the following command:
+
+```bash
+npx create-next-app@latest nextjs-blog --use-npm --example "https://github.com/vercel/next-learn/tree/main/basics/learn-starter"
+cd nextjs-blog
+```
+
+Run your project:
+
+```bash
+npm run dev
+```
+
+Open http://localhost:3000 from your browser, and you will get:
+
+![](https://hackmd.io/_uploads/HJP7zJf16.png)
+
+### Install Nextra
+
+To create a Nextra Docs site manually, you have to install **Next.js**, **React**, **Nextra**, and **Nextra Docs Theme**. In your project directory, run the following command to install the dependencies:
+
+```bash
+npm i next react react-dom nextra nextra-theme-docs
+```
+
+### Add Next.js config
+
+Create the following `next.config.js` file in your project’s root directory:
+
+```javascript filename="next.config.js"
+const withNextra = require('nextra')({
+  theme: 'nextra-theme-docs',
+  themeConfig: './theme.config.jsx'
+})
+ 
+module.exports = withNextra()
+ 
+// If you have other Next.js configurations, you can pass them as the parameter:
+// module.exports = withNextra({ /* other next.js config */ })
+```
+
+### Create docs theme config
+
+Lastly, create the corresponding `theme.config.jsx` file in your project’s root directory. This will be used to configure the Nextra Docs theme:
+
+```javascript filename="theme.config.jsx"
+export default {
+  logo: <span>My Nextra Documentation</span>,
+  project: {
+    link: 'https://github.com/shuding/nextra'
+  }
+  // ... other theme options
+}
+```
+
+### Ready to Go!
+
+Now, you can create your first MDX page as `pages/index.mdx`:
+
+```javascript filename="page/index.mdx"
+# Welcome to Nextra
+ 
+Hello, world!
+```
+
+![](https://hackmd.io/_uploads/BJvwtxMya.png)
+
+</Steps>
+
+Page Configuration
+---
+
+In Nextra, the site and **page structure** can be configured via the co-located `_meta.json` files.
+
+### Pages
+
+The title and order of a page shown in the Sidebar should be configured in the `_meta.json` file as **key-value pairs**.
+
+- **key:** your .mdx file name
+- **value:** the keywords shown in the Sidebar
+
+![](https://hackmd.io/_uploads/Hkz00pqkp.png)
+
+Here is an example of `_meta.json` file:
+
+```javascript filename="_meta.json"
+{
+    "index": "Home",
+
+    "Algorithm": {
+        "title": "Algorithm"
+    },
+    "Web-Design": {
+        "title": "Web Design"
+    },
+    "Linebot": {
+        "title": "Linebot Design"
+    },
+    "Ray-Tracing": {
+        "title": "Ray Tracing"
+    },
+    "ROS": {
+        "title": "ROS"
+    },
+    "Cuda": {
+        "title": "Cuda"
+    },
+    "CS231n": {
+        "title": "CS231n"
+    },
+
+    "about_me": {
+        "title": "About Me",
+        "type": "page"
+    }
+}
+```
+
+`type = page` means:
+
+![](https://hackmd.io/_uploads/S1FG1C9Jp.png)
+
+Of course nest definition:
+
+![](https://hackmd.io/_uploads/BymIl0c1T.png)
+
+Theme Configuration
+---
+
+There are lots of personalized settings provided by Nextra. Check the Nextra Official Website: https://nextra.site/docs
+
+For example: the website can **auto collapse** unfocused pages in the Sidebar.
+
+Special Markdawn Syntax
+---
+
+Here I will introduce two special syntax of Nextra Markdawn. Enhance the **readability** of our articles a lot.
+
+### 1. Steps Component
+
+Append these contents in your `.mdx` file:
+
+```javascript
+import { Steps } from 'nextra/components'
+ 
+<Steps>
+### Step 1
+ 
+Contents for step 1.
+ 
+### Step 2
+ 
+Contents for step 2.
+</Steps>
+```
+
+And you will get:
+
+<Steps>
+### Step 1
+ 
+Contents for step 1.
+ 
+### Step 2
+ 
+Contents for step 2.
+</Steps>
+
+### 2. File Tree Component
+
+Try this in your `.mdx` file:
+
+```javascript
+import { FileTree } from 'nextra/components'
+ 
+<FileTree>
+  <FileTree.Folder name="pages" defaultOpen>
+    <FileTree.File name="_meta.json" />
+    <FileTree.File name="contact.md" />
+    <FileTree.File name="index.mdx" />
+    <FileTree.Folder name="about">
+      <FileTree.File name="_meta.json" />
+      <FileTree.File name="legal.md" />
+      <FileTree.File name="index.mdx" />
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+```
+
+And you will get:
+
+import { FileTree } from 'nextra/components'
+ 
+<FileTree>
+  <FileTree.Folder name="pages" defaultOpen>
+    <FileTree.File name="_meta.json" />
+    <FileTree.File name="contact.md" />
+    <FileTree.File name="index.mdx" />
+    <FileTree.Folder name="about">
+      <FileTree.File name="_meta.json" />
+      <FileTree.File name="legal.md" />
+      <FileTree.File name="index.mdx" />
+    </FileTree.Folder>
+  </FileTree.Folder>
+</FileTree>
+
+Github Repository
+---
+
+You can directly fork it on this Github repository: https://github.com/ycpranchu/ycpranchu.notebook

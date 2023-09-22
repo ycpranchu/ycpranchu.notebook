@@ -1,0 +1,5 @@
+{
+    "kmp": "KMP",
+    "manacher": "Manacher",
+    "floyd_cycle_detection": "Floyd Cycle Detection"
+}
