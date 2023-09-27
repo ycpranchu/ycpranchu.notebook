@@ -1,0 +1,92 @@
+Cost of Divergence in Ray Tracing
+===
+
+Hansung Kim, Angie Wang, Sizhuo Zhang, Sophia Shao
+SLICE Lab @ UC Berkeley
+
+Introduction to ray tracing
+---
+
+What Is Ray Tracing? **Specialized hardware for BVH + shading algorithms + neural rendering**
+
+- heterogeneous hardware with tight accelerator
+
+![](https://hackmd.io/_uploads/SkdsU_2k6.png)
+
+**Basic Steps**
+
+1. Find the closest intersection point
+2. Do tree-traversal on Bounding Volume Hierarchies (BVH)
+
+Divergence in ray tracing
+---
+
+Ray tracing is massively parallel, but not easily mapped to hardware
+
+- Individual rays have divergent behavior
+- Divergence is costly for SIMD processors such as GPUs
+
+**Coherent rays (Primary rays)** = similar origin and direction
+
+![](https://hackmd.io/_uploads/B1yAqd2y6.png)
+
+### Divergence
+
+As **secondary rays** bounce around the scene, they become incoherent, causing **two types of divergence:**
+
+![](https://hackmd.io/_uploads/SJ4Qiu3yp.png)
+
+#### Control Flow Divergence
+
+Some threads in a warp stay inactive.
+
+![](https://hackmd.io/_uploads/rJ0vjO3kT.png)
+
+#### Memory Divergence
+
+Longer memory latency, higher memory traffic.
+
+![](https://hackmd.io/_uploads/ryo1hunka.png)
+
+### Ray Reordering
+
+**Ray reordering/sorting** can restore coherence at the algorithm level
+
+![](https://hackmd.io/_uploads/ryrfA_n1p.png)
+
+Microarchitectural bottlenecks from divergence
+---
+
+**Control flow divergence** in ray tracing causes…
+
+- CUDA: SIMT inefficiencies
+
+**Memory divergence** in ray tracing causes…
+
+- CUDA: Uncoalesced L1 accesses
+- RTX: High miss traffic to L2 cache
+
+**Ray sorting** alleviates above bottlenecks
+
+- Benefits both CUDA and RTX kernel
+- More improvement on memory divergence than control flow
+
+### Benefits
+
+1. Sorting rays can lower latencies and improve occupancy by 53%
+2. Ray sorting reduces divergence and improves trace throughput
+3. RTX also benefits from ray sorting, as much as CUDA
+    - Scheduling of rays remains important
+
+Discussions
+---
+
+- Solving divergence in ray tracing necessitates **algorithm-hardware co-design**
+- Open GPU infrastructures e.g. Vortex/Skybox enables **hardware/software co-design** research for ray tracing
+
+Summary
+---
+
+- Ray tracing is **latency-bound** than bandwidth-bound
+- **Divergence** of individual rays underlies microarchitectural bottlenecks
+- **Ray reordering** can relieve divergence by re-distributing work
