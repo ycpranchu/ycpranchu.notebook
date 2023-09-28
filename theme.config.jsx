@@ -61,7 +61,6 @@ export default {
                 <a href="https://ycpranchu.com" target="_blank">
                     ycpin & ycpranchu
                 </a>
-                .
             </span>
         )
     },
