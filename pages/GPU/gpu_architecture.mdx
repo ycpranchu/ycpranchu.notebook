@@ -1,0 +1,83 @@
+GPU Architecture
+===
+
+Source:
+
+- [NVIDIA Ampere GA102 Introduction](https://courses.engr.illinois.edu/cs433/fa2020/slides/mini-project-nvidia-ampere-ga102.pdf)
+- [Understanding the architecture of a GPU](https://medium.com/codex/understanding-the-architecture-of-a-gpu-d5d2d2e8978b)
+
+CPU vs GPU
+---
+
+![](https://hackmd.io/_uploads/SkM1vwfep.png)
+
+- Green for computational units (可計算單元) or cores (核心)
+- Orange for memories (內存)
+- Yellow for control units (控制單元)
+
+A. Computational units (cores)
+---
+
+- **CPU** Computational units: **Powerful but less**，計算能力隨著頻率而增高 (超頻的作用)
+- **GPU** Computational units: **More but powerless**，多用於嵌入式系統，需要考量功耗
+
+**CPU core is more powerful, why?**
+
+CPU 擁有 "out-of-order exectutions" 功能，預測下一個被執行的指令 (multiple branch prediction 多重分支預測)，準備參數，提前執行指令 (soeculative execution 預測執行)，節省指令執行時間
+
+GPU 只能做一些簡單的浮點運算，例如 multiply-add (MAD) 或者 fused multiply-add (FMA) 指令
+
+![](https://hackmd.io/_uploads/SkBwOM7x6.png)
+
+### GPU Core
+
+#### tensor core
+
+目的在於操作一些 Deep Learning 矩陣運算
+
+![](https://hackmd.io/_uploads/HknrCfXgp.png)
+
+#### ray tracing core
+
+實現光追渲染
+
+![](https://hackmd.io/_uploads/B1Jw1mQgT.png)
+
+### SIMD vs SIMT
+
+1. SIMD 僅僅需要暫存器位數多一點，然後 ALU 寬一點，一次能處理的數據量很有限
+2. SIMT 在 GPU 上，GPU 是有成百上千的單獨的計算單元的
+3. SIMD 是一個線程，在一個核心上。SIMT 是多個線程，多個核心上運行的線程。SIMT 是真正的並行，各個線程的邏輯都可以有一定的區別，SIMD 僅僅能進行簡單的加減乘除運算而已
+4. **SIMD 是 CPU 上用的，SIMT 是 GPU 上用的**；SIMD 更像是 CPU 的一個小擴展，SIMT 是 GPU 上並發性的核心保證
+
+cuda 是 SIMD (Single Instruction Multiple Data)，所有 Core 的計算操作完全是在相同的時間內進行的，但是輸入的數據有所不同
+
+顯然，GPU 的優勢不在於核心的處理能力，而是**大規模並行處理數據**
+
+B. Memory
+---
+
+- CPU 的 memory 一般是基於 DRAM 的，同時具有 L1, L2, L3 Cache
+- GPU 具有較小的 DRAM 以及 Cache
+
+![](https://hackmd.io/_uploads/HympQ7QgT.png)
+
+如果 GPU 想要完成上述的計算過程，多個 cores 需要使用 Shared Memory 完成讀/寫的操作，出於成本的考量，解決方案是將 GPU cores 分組，形成 **Streaming Multiprocessors (SMs)**
+
+![](https://hackmd.io/_uploads/rJ8dVm7gT.png)
+
+### Streaming Multiprocessors
+
+![](https://hackmd.io/_uploads/SJtVE7mgT.png)
+
+- **Ampere**: 64 INT32 / FP32 + 64 FP32 / SM
+- **Volta, Turing**: 64 INT32 + 64 FP32 / SM
+
+### Cooperation
+
+各個核心之間如何完成彼此的協作？
+
+1. 在四個 SM 塊的底部有一個 **L1 Cache**，這個 cache 允許各個 Core 共享內存
+2. 實際上 L1 caceh 擁有兩個功能，一個是 Core 之間相互共享內存，另一個是普通的 cache 功能
+3. programmer 有權決定 L1 的多少是用作 cache，多少是用作共享內存
+4. 用於各個核心之間共享內存的，也可以是 register
