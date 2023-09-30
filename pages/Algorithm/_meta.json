@@ -1,5 +1,6 @@
 {
     "kmp": "KMP",
     "manacher": "Manacher",
-    "floyd_cycle_detection": "Floyd Cycle Detection"
+    "floyd_cycle_detection": "Floyd Cycle Detection",
+    "monotonic_stack": "Monotonic Stack"
 }

@@ -1,14 +1,14 @@
 {
     "index": "Home",
 
+    "Algorithm": {
+        "title": "Algorithm"
+    },
     "Ray-Tracing": {
         "title": "Ray Tracing"
     },
     "GPU": {
         "title": "GPU"
-    },
-    "Algorithm": {
-        "title": "Algorithm"
     },
     "Web-Design": {
         "title": "Web Design"
