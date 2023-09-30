@@ -4,7 +4,7 @@ export default {
     logo: (
         <>
             <span style={{ marginLeft: '.4em', fontWeight: 800 }}>
-                ycpin's Notebook 🎃
+                ycpin & ranchu's Notebook 🎃
             </span>
         </>
     ),

@@ -1,0 +1,16 @@
+Monotonic Stack
+===
+
+Stack 有著 First-in-Last-out 的特性，而 Monotonic Stack 則是保持著 Monotonic (元素單調性)
+
+![](public/images/algorithm/monotone_stack_0.gif)
+
+說明
+---
+
+- 每次 `push` 新元素到 stack 時，stack 內的元素都保持 Monotonic (只能是遞增或是遞減)
+- 如果 `push` 新元素會破壞 Monotonic，就必須將 `pop` stack，不斷 `pop` stack 直到 Monotonic，接著再 `push` 元素
+
+實現
+---
+
