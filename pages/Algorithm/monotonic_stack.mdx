@@ -11,6 +11,30 @@ Stack 有著 First-in-Last-out 的特性，而 Monotonic Stack 則是保持著 M
 - 每次 `push` 新元素到 stack 時，stack 內的元素都保持 Monotonic (只能是遞增或是遞減)
 - 如果 `push` 新元素會破壞 Monotonic，就必須將 `pop` stack，不斷 `pop` stack 直到 Monotonic，接著再 `push` 元素
 
-實現
+實現 Leetcode 456. 132 Pattern
 ---
 
+```cpp
+class Solution {
+public:
+    bool find132pattern(vector<int>& nums) {
+        if (nums.size() < 3) return false;
+
+        stack <int> monostk;
+        int n3 = INT_MIN;
+
+        for(int i = nums.size() - 1; i >= 0; i--) {
+            if (nums[i] < n3) return true;
+
+            while (!monostk.empty() && nums[i] > monostk.top()) {
+                n3 = max(n3, monostk.top());
+                monostk.pop();
+            }
+
+            monostk.push(nums[i]);
+        }
+
+        return false;
+    }
+};
+```
