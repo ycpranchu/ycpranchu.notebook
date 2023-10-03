@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://ycpranchu.com
+
+# Sitemaps
+Sitemap: https://ycpranchu.com/sitemap.xml
