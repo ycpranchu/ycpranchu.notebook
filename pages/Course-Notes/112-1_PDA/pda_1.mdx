@@ -1,0 +1,67 @@
+Physical Design Automation Unit 1: Introduction
+===
+
+Course contents:
+- Introduction to VLSI design flow
+- Introduction to physical design automation
+- Semiconductor technology roadmap
+
+![](https://hackmd.io/_uploads/S17-3LEeT.png)
+
+IC Design Considerations
+---
+
+Several conflicting considerations:
+
+- **Design Complexity:** large number of devices/transistors
+- **Performance:** optimization requirements for high performance
+- **Time-to-market:** about a 15% gain for early birds
+- **Cost:** die area, packaging, testing, etc.
+- **Others:** power, signal integrity (noise, etc.), testability, reliability, manufacturability, etc
+
+ppay: power, performance, area, field
+
+Sub-wavelength Lithography Problems
+---
+
+![](https://hackmd.io/_uploads/rJIzZDNx6.png)
+
+Traditional VLSI Design Cycles
+---
+
+1. System specification
+2. Functional design -> Verilog
+3. Logic synthesis
+4. Circuit design
+5. **Physical design (PDA, EDA)**
+6. Fabrication 
+7. Packaging
+
+![](https://hackmd.io/_uploads/SymibvElp.png)
+![](https://hackmd.io/_uploads/HkqhZw4lp.png)
+
+將數個功能不同的晶片，整合成「一個」具有完整功能的晶片，再封裝成「一個」積體電路，稱為「系統單晶片」（**SoC：System on a Chip**）
+
+Abstraction Levels
+---
+
+![](https://hackmd.io/_uploads/rJ0M7DVe6.png)
+
+Design of Integrated Systems
+
+![](https://hackmd.io/_uploads/Byez3mvNgp.png)
+
+Physical Design (PD)
+---
+
+![](https://hackmd.io/_uploads/SJPx4v4xa.png)
+
+### Physical design cycle
+
+1. Partitioning
+2. Floorplanning
+3. Placement
+4. Routing
+5. Post-layout optimization (buffering, sizing, etc.)
+
+![](https://hackmd.io/_uploads/rkOF4wEep.png)

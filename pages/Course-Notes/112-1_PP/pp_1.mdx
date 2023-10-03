@@ -1,0 +1,279 @@
+Parallel Programming L1: Overview of Parallel and Distributed Programming
+===
+
+Library for implementing a programming model
+
+* Shared-memory library (**Pthreads**, **OpenMP**)
+* Distributed-memory library (**Message Passing Interface**)
+* Heterogeneous-programming library (**CUDA**, **OpenCL**)
+* Cluster-based library (**MapReduce**)
+
+Creating a Parallel Program
+---
+
+![](https://hackmd.io/_uploads/HkVWqLBl6.png)
+
+1. **Decomposition** into tasks
+2. **Assignment** of tasks to processes/threads
+3. **Orchestration** of data access, communication, etc.
+4. **Mapping** processes to processors
+
+### Shared-Memory Systems
+
+Multiple processors can operate independently but share the same memory resources.
+
+![](https://hackmd.io/_uploads/rkAkjLSgp.png)
+
+### Distributed-Memory Systems
+
+Processors have their own local memory, there is no concept of global address space across all processors.
+
+![](https://hackmd.io/_uploads/H1qbiUSep.png)
+
+### Hybrid Distributed-Shared Systems
+
+Multiple shared-memory machines only know about their own memory - not the memory on another machine.
+
+![](https://hackmd.io/_uploads/S1UNiUBga.png)
+
+Sequential to Parallel
+---
+
+Traditional programming thus follows a single thread of control.
+
+![](https://hackmd.io/_uploads/S1v0TLrlp.png)
+
+Parallel computing is the simultaneous use of multiple compute resources to solve a computational problem
+
+![](https://hackmd.io/_uploads/Sk5UAIrgp.png)
+
+* **Concurrent computing**: multiple tasks can be in progress
+* **Parallel computing**: multiple tasks cooperate
+* **Distributed computing**: cooperate with other programs
+
+Why Use Parallel Computing?
+---
+
+1. Save time and/or money
+2. Solve larger problems
+3. Hardware architectures demand it
+
+How Do We Write Parallel Programs?
+---
+
+**Task-parallelism**
+
+We partition the various tasks carried out in solving the problem among the cores.
+
+**Data-parallelism**
+
+We partition the data used in solving the problem among the cores, and each core carries out more or less similar operations on its part of the data.
+
+Example
+
+![](https://hackmd.io/_uploads/ByQx4PHxa.png)
+
+Parallel Programming Models
+---
+
+- Control
+    - How is parallelism **created**?
+    - What **orderings** exist between operations?
+* Data
+    * What data are **private** vs. **shared**?
+    * How is logically shared data accessed or **communicated**?
+- Synchronization
+    * What operations can be used to coordinate parallelism?
+    * What are the **atomic** (indivisible) operations?
+
+### Shared Memory
+
+![](https://hackmd.io/_uploads/ry-cBvSxa.png)
+
+**race condition / data race**
+
+![](https://hackmd.io/_uploads/Sy3e8DBxa.png)
+
+#### POSIX Threads
+
+POSIX: Portable Operating System Interface for UNIX
+
+```c filename="Pthreads Example"
+void* SayHello(void *foo) {
+    printf( "Hello, world!\n" );
+    return NULL;
+} 
+int main() { 
+    pthread_t threads[16];
+    int tn; 
+    for(tn=0; tn<16; tn++) { 
+        pthread_create(&threads[tn], NULL, SayHello, NULL);
+    }
+    for(tn=0; tn<16 ; tn++) {
+        pthread_join(threads[tn], NULL);
+    } 
+    return 0; 
+} 
+```
+
+#### OpenMP
+
+An API for Writing Multithreaded Applications, a set of **compiler directives (特殊語法)** and library routines.
+
+Fork-Join Parallelism: **Master thread** spawns a team of threads as needed
+
+![](https://hackmd.io/_uploads/S1t-DwHlT.png)
+
+```c filename="OpenMP Example"
+#include “omp.h”
+void main() {
+    #pragma omp parallel // parallel region
+    {
+        int ID = omp_get_thread_num();
+        printf(“ hello(%d) ”, ID);
+        printf(“ world(%d) \n”, ID);
+    }
+}
+```
+
+### Distributed-memory model
+
+#### Message Passing
+
+- Program consists of a collection of named (thread ID) processes.
+- Processes communicate by explicit **send/receive pairs**.
+
+NO shared data
+
+Inter-processes communication (IPC) -> MPI (Message Passing Interface) 
+
+![](https://hackmd.io/_uploads/B1CUuPrxa.png)
+
+![](https://hackmd.io/_uploads/SJ9rFwSe6.png)
+
+#### Which is better? SM or MP?
+
+![](https://hackmd.io/_uploads/BJb45vHg6.png)
+
+Disvantages: false caching vs. network latancy
+
+### Data-parallel model
+
+GPU programming (指令層級的平行度)
+
+![](https://hackmd.io/_uploads/B1F2qvHeT.png)
+
+1. GPUs provide a **threaded programming model (CUDA)** for data parallelism to accommodate both (only NVDA).
+2. MapReduce -> Hadoop (for search engine)
+
+#### CUDA
+
+Compute Unified Device Architecture
+
+**Data-parallel** programming interface to GPU
+
+- Data to be operated on is discretized into independent partition of memory.
+- Each thread performs roughly same computation to different partition of data.
+
+```cpp filename="CUDA Example"
+__global__ void vecAdd(int A[ ], int B[ ], int C[ ]) {
+    int i = threadIdx.x;
+    C[i] = A[i] + B[i];
+}
+
+int main() {
+    int hA[ ] = {…};
+    int hB[ ] = {…};
+    
+    cudaMemcpy(dA, hA, sizeof(hA), HostToDevice);
+    cudaMemcpy(dB, hB, sizeof(hB), HostToDevice);
+    
+    vecAdd<<<1, N>>>(dA, dB, dC);
+    
+    cudaMemcpy(dC, hC, sizeof(hC), DeviceToHost);
+}
+```
+
+![](https://hackmd.io/_uploads/SJ01RwBg6.png)
+
+#### OpenCL
+
+across heterogeneous platforms consisting of CPUs, GPUs and other processors
+
+#### MapReduce
+
+the model is inspired by the **map and reduce** functions
+
+![](https://hackmd.io/_uploads/SJWkgoHga.png)
+
+input is divided into smaller sub-problems, and distributes them to worker nodes
+
+![](https://hackmd.io/_uploads/B1skxjSxT.png)
+
+all the sub-problems and combines them in some way to form the output
+
+![](https://hackmd.io/_uploads/HyXM-oSea.png)
+
+**Example:** Word Count
+
+![](https://hackmd.io/_uploads/r1G3bjre6.png)
+
+#### Hadoop
+
+**Distributed File System (HDFS)** -> shared by all nodes
+
+It supports the running of applications on large clusters of commodity hardware (**fault tolerance**).
+
+### Remark
+
+All of these models rely on dividing up work into parts that are:
+* Mostly independent (little synchronization)
+* About same size (load balanced)
+* Have good locality (little communication) -> reduce overhead
+
+Performance
+---
+
+* Speedup
+* Efficiency
+* Scalability
+
+p cores
+
+### Speedup
+
+![](https://hackmd.io/_uploads/B1tfVoSga.png)
+
+Then linear speedup has S = p (optimal)
+
+### Efficiency
+
+S/p, is sometimes called the efficiency of the parallel program
+
+![](https://hackmd.io/_uploads/ry2gEiSe6.png)
+
+### Scalability
+
+increase the number of processes/threads, then the **efficiency will be unchanged**, and our program is scalable (Strongly/Weakly scalable)
+
+### Amdahl’s Law
+
+s = sequential, p = parallel, n = # of cores
+
+![](https://hackmd.io/_uploads/rkfKBsBx6.png)
+
+![](https://hackmd.io/_uploads/BJksEoreT.png)
+
+Amdahl’s Law works on a fixed problem size.
+What if you also want to solve a larger problem?
+
+### Gustafson’s Law
+
+![](https://hackmd.io/_uploads/BJ2PSiSlp.png)
+
+![](https://hackmd.io/_uploads/rJBDHjHe6.png)
+
+Summary
+---
+
+When we write parallel programs, we usually need to **coordinate** the work of the cores. This can involve **communication** among the cores, **load balancing**, and **synchronization** of the cores.
