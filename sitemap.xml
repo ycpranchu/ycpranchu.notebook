@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+
+
+<url>
+  <loc>https://www.ycpranchu.com/</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/about_me</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/Course-Notes/112-1_PDA/pda_1</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/Course-Notes/112-1_PDA/pda_2</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/Course-Notes/112-1_OS/os_1</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/Course-Notes/112-1_OS/os_2</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/Course-Notes/112-1_PP/pp_1</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/Algorithm/kmp</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/Algorithm/manacher</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/Algorithm/floyd_cycle_detection</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/Algorithm/monotonic_stack</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/Ray-Tracing/divergence</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/Ray-Tracing/monte_carlo</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/GPU/gpu_architecture</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/Web-Design/about_nextjs</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/Web-Design/nextjs_nextra</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/Linebot/linebot_django_setup</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://www.ycpranchu.com/Linebot/linebot_django_database</loc>
+  <lastmod>2023-10-03T13:03:54+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+
+
+</urlset>
