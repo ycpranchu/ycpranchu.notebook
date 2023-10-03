@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 export default {
     logo: (
         <>
-            <span style={{ marginLeft: '.4em', fontWeight: 800 }}>
+            <span style={{ marginLeft: '.0em', fontWeight: 800 }}>
                 ycpin & ranchu's Notebook 🎃
             </span>
         </>
@@ -21,7 +21,7 @@ export default {
         }
         else {
             return {
-                titleTemplate: 'ycpin\'s Notebook 🎃'
+                titleTemplate: 'ycpin & ranchu\'s Notebook 🎃'
             }
         }
     },
@@ -59,7 +59,7 @@ export default {
             <span>
                 MIT {new Date().getFullYear()} ©{' '}
                 <a href="https://ycpranchu.com" target="_blank">
-                    ycpin & ycpranchu
+                    ycpin & ranchu, National Yang Ming Chiao Tung University
                 </a>
             </span>
         )

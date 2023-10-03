@@ -1,0 +1,160 @@
+Physical Design Automation Unit 2: EDA Paradigms & Complexity
+===
+
+Course contents:
+
+- **Computational Complexity**
+- EDA paradigms: Algorithms, Frameworks, Methodology
+
+![](https://hackmd.io/_uploads/r13ewwEeT.png)
+
+**Algorithm:** a well-defined procedure transforming some input (高階電路) to a desired output (RTL code, Verilog) in **finite** computational resources in **time** and **space**.
+
+Runtime comparison:
+
+![](https://hackmd.io/_uploads/ryeShvNg6.png)
+
+Big-O Notation
+---
+
+“An algorithm has worst-case running time O(f(n))”: there is a constant c s.t. for every **n** big enough, every execution on an input of size n takes at most cf(n) time.
+
+![](https://hackmd.io/_uploads/rkyZZ_Elp.png)
+
+- **Time complexity** is expressed in elementary computational steps (e.g., an addition, multiplication, pointer indirection).
+- **Space Complexity** is expressed in memory locations (e.g. bits, bytes, words). 
+
+Amortized Analysis
+---
+
+Find a tight bound of a sequence of data structure operations.
+
+Three popular methods:
+
+* Aggregate method
+* Accounting method
+* Potential method
+
+### Aggregate method
+
+* n operations take T(n) time.
+* Average cost of an operation is **T(n)/n time**.
+
+### Accounting method
+
+* Store the overcharge of early operations as “**prepaid credit**” in “bank.”
+* **Use the credit for later operations**.
+
+![](https://hackmd.io/_uploads/H1H8EuVl6.png)
+
+- Amortized cost = actual cost + credit
+
+Must guarantee nonnegative balance at all time.
+
+### Potential method
+
+- View “**prepaid credit**” as “**potential energy**”.
+
+Asymptotic Functions
+---
+
+![](https://hackmd.io/_uploads/rkDROd4xp.png)
+
+- **Class P**: class of problems that can be solved in polynomial time in the size of input. 
+- **Class NP (Nondeterministic Polynomial)**: class of problems whose solutions can be **verified** in polynomial time in the size of input.
+- **Class NP-complete (NPC)**: Any NPC problem can be solved in polynomial time -> all problems in NP can be solved in polynomial time. (**Reduction**)
+
+![](https://hackmd.io/_uploads/BJjStdNlT.png)
+
+Algorithm Types
+---
+
+Algorithms usually used for P problems
+
+* Exhaustive search
+* Branch and bound
+* Divide-and-conquer (a.k.a. hierarchical)
+* Dynamic programming
+* Mathematical programming
+
+Algorithms usually used for NP (but not P) problems (strategy: not seeking an “optimal solution”, but a “good” one)
+
+* **Approximation**
+* Pseudo-polynomial time: polynomial form, but NOT to input size
+* Restriction: restrict the problem to a special case that is in P
+* Exhaustive search/branch and bound
+* Local search: simulated annealing, genetic algorithm, ant colony
+* Heuristics: greedy, … etc
+
+Polynomial-time Reduction
+---
+
+**Motivation:** Let L1 and L2 be two decision problems.
+Suppose algorithm A2 can solve L2. Can we use A2 to solve L1?
+
+![](https://hackmd.io/_uploads/SyMIou4xT.png)
+
+NP-Completeness
+---
+
+- **NP-completeness:** worst-case analyses for decision problems.
+- A **decision** problem L is **NP-complete (NPC)** if
+    1. L ∈ NP, and
+    2. L' ≤ L for every L' ∈ NPC.
+- **NP-hard:** If L satisfies property 2, but not necessarily property 1, we say that L is **NP-hard**.
+
+![](https://hackmd.io/_uploads/rJDg6d4gp.png)
+
+Coping with NP-hard Problems
+---
+
+### Exhaustive Search vs. Branch and Bound
+
+![](https://hackmd.io/_uploads/HyXcpdEga.png)
+
+### Divide-and-Conquer
+
+- (Divide) Recursively break down a problem into two or more subproblems of the same (or related) type
+- (Conquer) Until these become simple enough to be solved directly
+- (Combine) The solutions to the sub-problems are then combined to give a solution to the original problem
+
+Determined by solving recurrence relations
+
+### Dynamic Programming
+
+Store the values in a table
+
+![](https://hackmd.io/_uploads/BJV8RONxT.png)
+
+### Mathematical Programming
+
+NP-hard Example: Bin Packing
+
+![](https://hackmd.io/_uploads/HyUT0_4x6.png)
+
+![](https://hackmd.io/_uploads/r1rylt4ga.png)
+
+Mathematical Programming: Use **integer linear programming (ILP)** to find a solution 
+
+![](https://hackmd.io/_uploads/S1r-eFNlT.png)
+
+Machine Learning for EDA
+---
+
+![](https://hackmd.io/_uploads/BJ4OlKEea.png)
+
+Framework Evolution
+---
+
+EDA tools: Flat -> Hierarchical -> Multilevel
+
+solve those subproblems **independently**
+
+![](https://hackmd.io/_uploads/S1Zm-t4ea.png)
+
+Bottom-up Coarsening 
+Top-down Uncoarsening
+
+![](https://hackmd.io/_uploads/BkOSWFVga.png)
+
+

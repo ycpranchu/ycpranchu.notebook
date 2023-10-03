@@ -1,11 +1,11 @@
 {
     "index": "Home",
 
+    "Course-Notes": {
+        "title": "Lecture Notes"
+    },
     "Algorithm": {
         "title": "Algorithm"
-    },
-    "Course-Notes": {
-        "title": "Course Notes"
     },
     "Ray-Tracing": {
         "title": "Ray Tracing"
@@ -19,14 +19,8 @@
     "Linebot": {
         "title": "Linebot Design"
     },
-    "ROS": {
-        "title": "ROS"
-    },
     "Cuda": {
         "title": "Cuda"
-    },
-    "CS231n": {
-        "title": "CS231n"
     },
 
     "about_me": {
