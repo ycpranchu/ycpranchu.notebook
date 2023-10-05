@@ -2,5 +2,6 @@
     "kmp": "KMP",
     "manacher": "Manacher",
     "floyd_cycle_detection": "Floyd Cycle Detection",
-    "monotonic_stack": "Monotonic Stack"
+    "monotonic_stack": "Monotonic Stack",
+    "boyer_moore": "Boyer-Moore Majority Vote"
 }
