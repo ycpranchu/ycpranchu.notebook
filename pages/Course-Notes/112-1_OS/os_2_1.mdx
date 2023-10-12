@@ -1,2 +1,276 @@
-Operating System L2: Process & CPU Scheduling
+Operating System L2: Process & Scheduling
 ===
+
+* `Process`
+    * What is a Process, Process Descriptor, Process State Diagram (Process’s Life Cycle)
+    * Multiprogramming and Multitasking, Context Switch
+- `CPU Scheduling`
+    * Priority, Time Slice
+    * O(N) (Linux 2.4 ~ 2.6)
+    * O(1) SCHED_Normal (Linux releases 2.6.0 thru 2.6.22 )
+    * Completely Fair Scheduler (CFS) (After Linux 2.6.22)
+    * Real-Time Scheduling
+
+What is a Process
+---
+
+### Task Lists & Process Descriptor
+
+* `Process` 
+> an active program and related resources.
+* `Task Lists`
+> A list of process descriptors in a circular doubly linked lists.
+* `Process Descriptor (task_struct)`
+> Contains all information about a process.
+
+![](https://hackmd.io/_uploads/BJH-iYrW6.png)
+
+import { Callout } from 'nextra/components'
+
+<Callout type="info" emoji="ℹ">
+In Linux, XXX Descriptor `means the data structure` for maintaining information for XXX.
+</Callout>
+
+- `Process Control Block` (A general name) = Process Descriptor (Linux, task_struct)
+- `Max PID` = size of unsigned short int = `65,536` (16bits) 
+
+### How Kernel accesses a Process Descriptor
+
+<Callout type="info" emoji="ℹ">
+A `thread_info` is stored at the `bottom of the kernel stack (4KB)`. (Easier to Access)
+</Callout>
+
+<Callout type="info" emoji="ℹ">
+`Dereferences` the task member of `thread_info` to `get the pointer of the task_struct`.
+</Callout>
+
+![](https://hackmd.io/_uploads/HJqH2FB-p.png)
+
+### Process State
+
+* `Task_Running` - **Runnable**, either running or on a run-queue. (The only state for a process executing in user-space)
+* `Task_Interruptible` - **Sleeping** (i.e., blocked), waiting for some condition.
+* `Task_Uniterruptible` - **Sleeping, does not wake up** even receives a signal. (Kernel thread will manage it periodically. Fork Process.)
+* `__Task_Stopped` - Execution has stopped. (SIGCONT to resume)
+* `__Task_Traced` - Traced by another process (e.g., Debugger such as **GDB**).
+
+![](https://hackmd.io/_uploads/HJ-CV28xa.png)
+
+### The Process Family Tree
+
+<Callout type="info" emoji="ℹ">
+Use the `parent` or the `children` pointer provided by the process descriptor (parent may have multiple children).
+</Callout>
+
+By `traversing` through the `task_list` to access other processes.
+
+![](https://hackmd.io/_uploads/S1jlUh8gp.png)
+
+### Process Creation
+
+Process Creation = `fork() + exec()`
+
+- fork()
+> Create a child by copying its parent.
+(Reason: efficient and simple!) 
+- exec()
+> Loads a new executable into the address space (i.e., memory) and runs it.
+
+### Copy-on-Write (CoW)
+
+<Callout type="info" emoji="ℹ">
+`Delay` and prevent copying data `until the data is written`.
+</Callout>
+
+![](https://hackmd.io/_uploads/r18y0Fr-6.png)
+
+Linux Implementation - `copy_process()`
+
+- Allocate a new kernel stack (e.g., thread_info) and process descriptor (i.e., task_struct)
+- Copy (e.g., program counter, states) or set (e.g., `PID`) fields in the process descriptor
+- Set the state field to `TASK_UNINTERRUPTABLE` (Reason: initialization is non-interruptible)
+- Duplicate parent’s `page table`
+- `Duplicate (Process) or Share (Thread)`: Open files, filesystem information, signal handlers, process address space *(Notice: Does not share Stack)*, and namespace
+
+### Process vs Thread
+
+<Callout type="info" emoji="ℹ">
+Thread (Lightweight Process): Executes `within the same program` in a `shared memory address space` (also share open files and page tables).
+</Callout>
+
+* Linux implements all threads as `standard processes`.
+(Have their own task_struct)
+* Threads `have` their own: (1) Program Counter, (2) Registers, (3) Stack, (4) State 
+(others are shared)
+* Linux `does not` provide any special scheduling or data structures to represent threads.
+
+<Callout type="warning" emoji="⚠️">
+Creating Threads: `clone() is identical to fork()`, except that shared:
+</Callout>
+
+1. the address space
+1. file system resources
+1. file descriptors
+1. signal handlers
+
+* Kernel Threads: Run kernel tasks in the background `(daemon)`
+> do not have an address space
+> & operating only in kernel-space 
+- User Threads = Pthread Library
+
+### Process Termination
+
+1. Termination occurs when the process or C compiler calls `exit()`.
+1. Sets the `PF_EXITING flag` in the flags member of the `task_struct`.
+1. Call `exit_mm()` to `release the mm_struct (address space)` held by this process.
+1. Call `exit_sem()` dequeued from an `IPC semaphore waiting queue`.
+1. Call `exit_files()` and `exit_fs()` to `decrement the usage count` of objects related to file descriptors and filesystem data, respectively.
+`decrement`, not delete, because of shared filesystem.
+3. Call `exit_notify()` to `send signals to the task’s parent, reparents` any of the task’s children to another thread in their thread group or the init process.
+4. Call `schedule()` to switch to a new process.
+5. After the `parent retrieves the information`, the process's `kernel stack` (including task_struct and thread_info) will be `deallocated`.
+
+Process Scheduling
+---
+
+### Multitacking Systems
+
+Criteria for Schedulers: `Fairness`, `Response Time` (Interactive), `Throughput`
+
+- `Cooperative`
+> Processes voluntarily yield CPU. (high-priority can't preempt)
+- `Preemptive`
+> Involuntarily suspend (context switch) a running process.
+- `Timeslice`
+> The time a process runs before it is preempted (limit the usage of high-priority)
+
+![](https://hackmd.io/_uploads/BJx7g5qxp.png)
+
+### Considerations for Designing Policies
+
+Process Priority:
+
+- `nice value` - larger value means lower priority, for normal processes
+- `minus` nice value - higher priority (e.g. user process)
+- `real-time value` - all real-time processes have higher priority than normal processes (0~99 labels)
+
+Timeslice (static mapping) - limit the usage of high priority: 
+
+- Longer timeslice - Better Resource Utilization
+
+<Callout type="warning" emoji="⚠️">
+Challenge 1 - Triggers context switch frequently if all processes are low priority.
+</Callout>
+
+<Callout type="warning" emoji="⚠️">
+Challenge 2 - Timeslice difference is huge for processes with higher nice value (lower priority)
+</Callout>
+
+> 2X Timeslice for nice value 18 and nice value 19 - Resource Unbalance
+- `CFS` can solve these challenges, but O(1) cannot.
+
+Process Characteristics:
+
+- I/O-Bound - Spends much of time `submitting and waiting on I/O requests`.
+> Policy: Run more frequently and interactive, shorter timeslice
+* Processor-Bound - Spends much of time `executing code`.
+> Policy: Run less frequently, longer timeslice
+
+Maintenance Overhead:
+
+* How to find the next process: (1) Queue (2) Tree (3) Bit-map
+* Global runqueue `(maintain priority but Lock)` or Per-processor runqueue (Processor's utilization)
+
+### Realtime Scheduling Policies
+
+- `Soft Realtime` - kernel `tries` to schedule applications within timing deadlines. (Linux only provides soft realtime)
+- `Hard Realtime` - systems are `guaranteed` to meet any scheduling requirements within certain limits. (Autopilot)
+
+Linux Realtime Scheduling Policies:
+
+- Priority Range: `0~99 (Realtime Processes)`, `100~139 (Normal Processes)`
+    - `FIFO (SCHED_FIFO)` - simple
+    - `Round-Robin (SCHED_RR)` - FIFO with timeslice
+    > A lower-priority process can **never** preempt a SCHED_RR task, even if its timeslice is exhausted.
+
+<Callout type="info" emoji="ℹ">
+`FIFO & Round-Robin` can run together
+</Callout>
+
+Linux Process Scheduler
+---
+
+### O(N) (simple)
+
+- share a `global runqueue`, sorted by priority
+- Bad: shall `lock` the runqueue, once only a process can access
+- Bad: processes shall be `inserted` to an expired queue (out of running time) `in order, hard to scale`
+
+<Callout type="warning" emoji="⚠️">
+Want to solve - `Lock`.
+</Callout>
+
+### O(1) (Fast)
+
+- `active array (bitmap)`, 0~139 high to low priority (40 nice-value + 100 real-value)
+- `Hardware support` to find the leftmost bit.
+
+![](https://hackmd.io/_uploads/SJjgxpoe6.png)
+
+- Use the `priority value` to `get (dequeue) the next process (FIFO)` 
+- In the active array - `share the same priority`
+
+![](https://hackmd.io/_uploads/HkCwW5rZa.png)
+
+- `Recalculate priority` and enqueue to the expired bitarray.
+- `expired bitarray` - when processes use all the timeslice, put into the expired array.
+- When `no bit is set` in active bitarray, `switch active and expired bitarrays`.
+
+<Callout type="warning" emoji="⚠️">
+Want to solve - `Low priority processes will not have the usage to CPU`.
+</Callout>
+
+### CFS (Completely Fair Scheduler)
+
+* Goal - more interactive and more `Fair` than O(1).
+* Concept
+    * (1) Instead of statically mapping timeslice, each process would receive `1/n of the processor's time` (fair share)
+    * (2) Schedule processes for `infinitely small durations`
+* Complexity - log(n) // RB-tree
+
+![](https://hackmd.io/_uploads/SyXNf5S-T.png)
+
+<Callout type="warning" emoji="⚠️">
+`No guarantee` - high-priority processes run earlier than lower-priority processes!
+</Callout>
+
+---
+
+`Virtual Runtime` = Real system running time + Priority (Actual_Runtime/Weight)
+
+<Callout type="info" emoji="ℹ">
+Vruntime = delta_exec() * `NICE_Weight/NICE_k_Weight`
+</Callout>
+
+* `delta_exec` - Period to enter scheduler (e.g.,  6ms or 0.75ms, a constant)
+* `NICE_Weight` - Weight for the corresponding nice value (e.g., 0 -> 1024)
+* `NICE_k_Weight` - Overall weights of the all k running processes
+* Keep the virtual runtime of all `running` processes the same
+
+![](https://hackmd.io/_uploads/r1QdpZTeT.png)
+
+* Goal: Be more interactive and `Fair` than O(1).
+* How to decide the weight? 
+    * Ans: Follow the 10% effect
+
+<Callout type="info" emoji="ℹ">
+Update: NewVtime = OldVtime + `Actual_Runtime/Weight`
+</Callout>
+
+<Callout type="info" emoji="ℹ">
+`Actual_Runtime` smaller, `NewVtime` nicer
+</Callout>
+
+Process Context Switch
+---
+
