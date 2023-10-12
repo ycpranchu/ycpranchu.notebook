@@ -3,77 +3,97 @@ Operating System L1: Recap
 
 Three basic components:
 
-* Computing devices
-* Memory devices (e.g. DRAM)
-* I/O devices (e.g. HDD, SDD, or network devices)
+* `Computing devices`
+* `Memory devices` (e.g. DRAM)
+* `I/O devices` (e.g. HDD, SDD, or network devices)
 
 ![](https://hackmd.io/_uploads/S1Fs6nrg6.png)
 
-**Challenges** without Operating Systems:
+import { Callout } from 'nextra/components'
+ 
+<Callout type="warning" emoji="⚠️">
+    `Challenges` without Operating Systems:
+</Callout>
 
-* CPU will be solely occupied by one process. -> Process Scheduler
-* CPU shall wait for I/O devices. (1 ns vs 100 us). -> Page Fault Handler & Context Switch
-* CPU cannot understand ”file” in I/O devices. -> Device Driver & File System
+* CPU will be solely occupied by one process.
+> Process Scheduler
+* CPU shall wait for I/O devices. (1 ns vs 100 us).
+> Page Fault Handler & Context Switch
+* CPU cannot understand ”file” in I/O devices.
+> Device Driver & File System
 
 What is Operating Systems
 ---
 
-The role of an OS is to **coordinate** and manage **hardware devices**.
+<Callout type="info" emoji="ℹ">
+The role of an OS is to `coordinate` and manage `hardware devices`.
+</Callout>
 
-* Transparency: Users do not need to worry about **hardware managements or contentions**.
-* Resource Allocator: **Manage** CPU time, memory space and I/O resources.
-* Control Program: **Prevent errors** and improper use of computers. **(permission control)**
+* `Transparency` - Users do not need to worry about **hardware managements or contentions**.
+* `Resource Allocator` - **Manage** CPU time, memory space and I/O resources.
+* `Control Program` - **Prevent errors** and improper use of computers. **(permission control)**
 
 ![](https://hackmd.io/_uploads/BJVRkpBgp.png)
 
+---
+
 Well-Known Components:
 
-* **Process Scheduler**: Fairly allocate CPU resources to applications.
-* **Memory Manager**: Allocate memory, locate pages, reclaim memory.
-* **Block I/O Layer**: Manage I/O requests (Merge & Schedule I/O)
-* **File System**: Locate file contents, partition devices, control permission.
+* `Process Scheduler` - Fairly allocate CPU resources to applications.
+* `Memory Manager` - Allocate memory, locate pages, reclaim memory.
+* `Block I/O Layer` - Manage I/O requests (Merge & Schedule I/O)
+* `File System` - Locate file contents, partition devices, control permission.
 
 ![](https://hackmd.io/_uploads/B1I91pHea.png)
 
 What is Kernel
 ---
 
-Linux Kernel: A process manager consists of a **bunch of C and Assembly code**.
+<Callout type="info" emoji="ℹ">
+Linux Kernel - A process manager consists of a `bunch of C and Assembly code`.
+</Callout>
 
-Each process shall have their own **virtual address space (1GB | 3GB)**. if physical memory -> hard to programming
+Each process shall have their own `virtual address space (1GB | 3GB)`.
+> If physical memory -> hard to programming
 
 ![](https://hackmd.io/_uploads/S19RN6SeT.png)
 
-Is Linux Kernel a Process: No, **Context-Switch expensive**
+<Callout type="warning" emoji="⚠️">
+Is Linux Kernel a Process: No, `Context-Switch expensive`
+</Callout>
 
 ![](https://hackmd.io/_uploads/rkttE6Slp.png)
 
-- Kernel runs as **part of a user process**. (Noting: A specific part of all processes’ virtual address space **points to the same physical address storing kernel code**). 
-- Direct mapping
+---
 
-![](https://hackmd.io/_uploads/r1cNSaBg6.png)
+- Kernel runs as `part of a user process`. 
+> Noting: A specific part of all processes' virtual address space points to the same physical address storing kernel code. 
+- `Direct mapping`
+
+![](https://hackmd.io/_uploads/SkLt7KBZa.png)
 
 - Just switch pointer (User mode to Kernel mode)
 
 ### How to Trigger/Request Kernel Services
 
-**only** when some **special events are triggered**
+<Callout type="warning" emoji="⚠️">
+`only` when some `special events are triggered`
+</Callout>
 
-- Hardware interrupts (Alerting signal) 
+- Hardware interrupts (alert signal) 
     - Timer interrupt
-    - I/O Interrupt (e.g. Keyboard, Hard Disks)
+    - I/O Interrupt
 
 * Software-generated interrupts (Traps or Exceptions)
-    - Specific requests from user processes (**System Call**, such as Read/Write) -> program library
+    - Specific requests from user processes (`System Call`, such as Read/Write)
+    > Program Library
     - Some errors (e.g. invalid memory access or page faults)
 
 ![](https://hackmd.io/_uploads/ryNq8TrgT.png)
 
-Context Switch: time inturrupt
-
 ### A High-Level Overview
 
-Libraries (e.g., C/C++ Library -> Do Memory Allocation): **User System Calls**
+Libraries (e.g., C/C++ Library -> Do Memory Allocation): `User System Calls`
 
 ![](https://hackmd.io/_uploads/r1Ogw6Hxa.png)
 
@@ -81,11 +101,15 @@ Libraries (e.g., C/C++ Library -> Do Memory Allocation): **User System Calls**
 
 ![](https://hackmd.io/_uploads/r13_O6Bxa.png)
 
-**Latency**: for **single** user
+<Callout type="warning" emoji="⚠️">
+`Latency`: for `single` user
+</Callout>
 
-* The device trend **blurs the boundary** between memory and storage.
-* Storage response time catches up with **context switch overhead** (1~10 us). -> CPU don't need to wait
-* The **overhead** of running **file system** becomes critical (e.g., page cache).
-* Huge memory demands increases deployment cost. (Right page size?) -> problem: **page table**
+* The device trend `blurs the boundary` between memory and storage.
+* Storage response time catches up with `context switch overhead` (1~10 us).
+> CPU don't need to wait
+* The `overhead` of running `file system` becomes critical (e.g., page cache).
+* Huge memory demands increases deployment cost. (Right page size?)
+> Problem: page table
 
 ![](https://hackmd.io/_uploads/rJPetarl6.png)
