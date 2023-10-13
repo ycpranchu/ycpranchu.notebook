@@ -1,0 +1,274 @@
+Parallel Programming L2: Introduction to Parallel Hardware and Software
+===
+
+- Uniprocessor Parallelism
+- Explicit Parallel Computer Architectures
+- Parallel Software
+
+Pipelining, Out-of-order execution, Superscalar, VLIW
+---
+
+Instruction Level Parallelism (ILP)
+
+- `Pipelining` - overlapping individual parts of instructions
+- `Out of Order Execution (OOO)` - allow long operations to happen
+
+### Pipelining
+
+![](https://hackmd.io/_uploads/rk6ktpM-6.png)
+
+- Pipelining `helps throughput`, but `not latency`. (90min)
+
+![](https://hackmd.io/_uploads/BkzLt6zZp.png)
+
+`Superscalar` - launch more than one `instruction/cycle` (more functional units)
+> In ideal case, CPI < 1
+
+Limits to Pipelining
+
+- `Structural hazards`
+> Attempt to use the same hardware to do two different things at once.
+- `Data hazards`
+> Instruction depends on result of prior instruction still in the pipeline.
+- `Control hazards`
+> Caused by delay between the fetching of instructions and decisions about changes in control flow (branches and jumps).
+
+### Data hazard
+
+Example
+
+![](https://hackmd.io/_uploads/BJaq3HL-T.png)
+
+Types of Data Hazards
+
+- `Read-after-write (RAW)` dependencies
+    - Flow dependencies (true dependencies)
+    - `Cannot be abandoned`
+    
+* `Write-after-read (WAR)` dependencies
+    * Anti-dependencies (false dependencies)
+    * Can be eliminated through `register renaming`
+
+### Out-of-Order (OOO) Execution
+
+`Out-of-order` execution => `out-of-order` completion
+
+![](https://hackmd.io/_uploads/ryF0ABLWa.png)
+
+### Modern ILP
+
+1. `In-order instruction fetch`, Grab a bunch of instructions, determine all their dependences.
+2. Dynamically scheduled, `out-of-order execution`.
+3. Dealing with Hazards - May need to `guess`!
+    - Speculate on Branch results, Dependencies, even Values!
+    - If correct, don’t need to stall for result => yields performance
+    - If not correct, waste time and power
+
+`Superscalar Architecture`
+> Hardware scheduling
+
+- Superscalar ISA - `HW binder` (scheduling unit)
+
+![](https://hackmd.io/_uploads/r1FTV_IWp.png)
+
+`VLIW (very long instruction word) Architecture`
+> only scheduling on compiler (simple on hardware design)
+
+- VLIW ISA - `SW binder` (remove HW complexity)
+
+![](https://hackmd.io/_uploads/By4erOLb6.png)
+
+Vector Processing/SIMD
+---
+
+### Vector Programming
+
+![](https://hackmd.io/_uploads/HyEsr_UW6.png)
+
+import { Callout } from 'nextra/components'
+
+<Callout type="warning" emoji="⚠️">
+Require programmer (or compiler) to identify parallelism
+</Callout>
+
+![](https://hackmd.io/_uploads/rydbLOUWp.png)
+
+<Callout type="info" emoji="ℹ">
+`SIMD` - `fixed` vector length (not flexible)
+</Callout>
+
+### SIMD Architecture
+
+Single Instruction, Multiple Data (SIMD) - `low precision` and `high data parallelism`
+
+![](https://hackmd.io/_uploads/BkKGDd8bT.png)
+
+- GPU (Graphics Processing Units) have SIMD properties
+
+![](https://hackmd.io/_uploads/r1fUuOI-T.png)
+
+`sub-word parallelism` - Multimedia Extensions (SIMD Extensions)
+
+- Treat a `32-bit` register `as a vector of 2 * 16-bit or 4 * 8-bit` (short vectors)
+
+![](https://hackmd.io/_uploads/rkBqPdI-a.png)
+
+Perform loop vectorization to exploit `subword-level parallelism`
+
+![](https://hackmd.io/_uploads/ryq2OOU-p.png)
+
+- problem: limited ability to check `pointer alias`
+- solution:
+    - `inline assembly` (unflexible)
+    - `intrinstic function` (program library)
+
+### CUDA Execution Model
+
+- Thread has kernel function
+- SIMT - process same instruction
+
+![](https://hackmd.io/_uploads/r18gcd8Wp.png)
+
+Multithreading
+---
+
+Thread-Level Parallelism (TLP), Threads can be on a single processor
+
+![](https://hackmd.io/_uploads/rkpviu8WT.png)
+
+- threads use shared memory
+
+![](https://hackmd.io/_uploads/BkAqsO8-a.png)
+
+Common Performance Pitfall: Too many threads
+> context-switch expensive
+
+Solution - use `# of cores` threads
+> create exactly P threads and assign to P cores
+
+- `Hardware Multithreading` - multiple threads share processor simultaneously
+> Use n sets of registers, enhance context-switch
+
+When to switch between threads?
+
+- Alternate instruction per thread - `fine grain`
+- A thread is stalled, perhaps for a cache miss - `coarse grain`
+
+### Combining ILP and TLP
+
+Functional units are often idle in data path - `Simultaneous Multithreading (SMT)`
+> Intel renamed this as "Hyperthreading"
+
+![](https://hackmd.io/_uploads/HkF_TuL-a.png)
+
+### Summary: Multithreaded Categories
+
+- 2 cores
+
+![](https://hackmd.io/_uploads/BkQsTdIZ6.png)
+
+Uniprocessor Memory Systems
+---
+
+### Principle of Locality
+
+- `Temporal Locality` (Locality in Time) - If an item is referenced, it will tend to be referenced again soon. (e.g., `loops`, reuse)
+- `Spatial Locality` (Locality in Space) - If an item is referenced, items whose addresses are close by tend to be referenced soon. (e.g., straightline code, `array access`)
+
+Explicit Parallel Computer Architectures
+---
+
+![](https://hackmd.io/_uploads/SkDkktLbp.png)
+
+`Data movement`, `Communication` cost energy
+
+### Flynn’s Taxonomy of Processor
+
+- Single-instruction single-data (SISD)
+> Conventional uniprocessor
+- Single-instruction multiple-data (SIMD)
+> All processors perform the same operations
+- Multiple-instruction multiple-data (MIMD)
+> Homogeneous or heterogeneous multiprocessor
+- Multiple-instruction single-data (MISD)
+> Systolic arrays
+
+![](https://hackmd.io/_uploads/r1KH1tLbp.png)
+
+![](https://hackmd.io/_uploads/SJ7wJYU-6.png)
+
+### Shared-Memory Architecture
+
+![](https://hackmd.io/_uploads/BJK61YLbT.png)
+
+- `Non-Uniform` - Non-Uniform memory access time
+
+### Uniform Memory Access (UMA)
+
+Symmetric Multiprocessor (SMP) machines
+
+- Multiple cores on a die
+- Equal access and access times to memory
+
+#### About Caching
+
+high performance for shared memory
+
+- `Writeback cache` - doesn’t send all writes over bus to memory immediately
+
+Problem - `Cache Coherence!`
+
+![](https://hackmd.io/_uploads/HJ2QmFIWa.png)
+
+- Processors could see `different values` for u after event 3
+
+Solution - `Write-thru Invalidate`
+
+- Must invalidate before step 3
+
+### Non-Uniform Memory Access (NUMA)
+
+`Distributed shared memory` - difficult to program, but all multicore is NUMA
+
+<Callout type="warning" emoji="⚠️">
+Not all processors have equal access time to all memories
+</Callout>
+
+Coherence not Enough
+
+![](https://hackmd.io/_uploads/SkmGEtUZp.png)
+
+Memory Consistency Model - What `orders` are preserved?
+
+- `Sequential Consistency` - maintain program order (high cost)
+
+![](https://hackmd.io/_uploads/By5PNtLZa.png)
+
+- `Relaxed Consistency` - consist memory data on special time
+
+### Intuitive Memory Model
+
+* `Coherence` - defines `what` values can be returned by a read
+* `Consistency` - determines `when` a written value is returned by a read
+
+### Distributed-Memory Systems
+
+Memory addresses in one processor do not map to another processor
+> So there is no concept of global address space across all processors
+
+![](https://hackmd.io/_uploads/rJRtQnLZp.png)
+
+Parallel Software
+---
+
+### Shared-Memory Model
+
+shared-memory - variables can be `shared` or `private`
+
+- `Shared variables` can be read or written by any thread
+- `Private variables` can ordinarily only be accessed by one thread
+
+Two threads programming styles:
+
+- `Explicit` - User creates threads using threads API (eg. POSIX Threads)
+- `Implicit` - User uses high-level directives to create threads with the help of tool chain (eg. OpenMP)
