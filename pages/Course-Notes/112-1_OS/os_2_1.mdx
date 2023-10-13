@@ -274,3 +274,38 @@ Update: NewVtime = OldVtime + `Actual_Runtime/Weight`
 Process Context Switch
 ---
 
+Progress content - Contents of `user address space` (e.g., page table), `hardware registers (e.g., PC)` and `kernel data structures` that relate to the process.
+
+<Callout type="info" emoji="ℹ">
+Process Context Switch: Switching from one runnable process to another.
+</Callout>
+
+`switch_mm()` - Switch the virtual memory mapping (e.g., page table, TLB)
+> Thread don't need this.
+
+* Flush Branch Predictor Buffer - `Skippable`
+* Load New Page Table (CR3) - `Point to new page`
+* Load LDT (Not used for user processes) - `Memory segamentation, for supporting old version`
+
+![](https://hackmd.io/_uploads/H1JbwXIZp.png)
+
+`switch_to()` - Switch the process state (e.g., processor register, architecture-specific state)
+> Thread don't need something of this.
+
+![](https://hackmd.io/_uploads/Sy1-KQIW6.png)
+
+### CPU Mode Switch vs Context Switch
+
+While facing `exceptions` or `interrupts`, `CPU switches` from user mode to kernel mode to run kernel code.
+> Higher frequency than process context switch
+
+<Callout type="warning" emoji="⚠️">
+Not `process-level` context switching, its `mode-level`.
+</Callout>
+
+Before switching to kernel mode, CPU shall `save user mode context`.
+> User mode context - program counter, user-mode-specific state (e.g., user-space stack pointer register (ESP or RSP), floating point register, user-space instruction pointer)
+
+<Callout type="info" emoji="ℹ">
+`Save Context` - Write back all those registers to the corresponding process descriptor (i.e., task_struct) in main memory. (kernel-mode to user-mode)
+</Callout>

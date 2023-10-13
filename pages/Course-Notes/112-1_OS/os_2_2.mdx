@@ -1,2 +1,102 @@
 Operating System L2: Interrupt
 ===
+
+* Interrupts
+    * `Software Interrupt` - How system call works. Also, how to implement it.
+    * `Hardware Interrupt` - How interrupt handler (or interrupt service routine) works.
+
+System Call
+---
+
+import { Callout } from 'nextra/components'
+
+<Callout type="info" emoji="ℹ">
+Goal: let user-space processes `interact with the operating system`
+</Callout>
+
+e.g. `function calls` defined in the C library
+
+![](https://hackmd.io/_uploads/rJBX-zTlp.png)
+
+`sys_call_table` - The kernel keeps a list of all `system calls (with System Call Numbers)` in the system call table.
+
+### System Call Handler
+
+How to run system call:
+
+1. `Software interrupt call system call handler`
+1. The CPU switches from `user mode to kernel mode` (Not Process Context Switch!!)
+1. Execute `code corresponding` to the system call
+
+![](https://hackmd.io/_uploads/rJ2Lzz6xa.png)
+
+### How to Implement a System Call
+
+Brief Procedures:
+
+* Write a new system call (e.g., sys_hello.c)
+* Create a Makefile
+* Add the new system call into the system call table
+    * Parameters: System_call_number, arch(e.g., 64), system_call_name,  program_of_system_call
+* Add the new system call to the header file (include/linux/syscalls.h)
+* Compile/Install/Update Kernel
+
+Interrupts
+---
+
+### Handling Hardware Events
+
+- `Polling` - Periodically, the kernel checks hardware status and responds accordingly.
+> For fast response I/O
+- `Interrupt` - Let the hardware to signal to the kernel.
+> For slow response I/O
+
+Interrupt (`Asynchronous`, Hardware Interrupts) - Hardware devices `physically produce electronic signals`, which are directed into `input pins on an interrupt controller`.
+
+<Callout type="warning" emoji="⚠️">
+Asynchronous - CPU need to wait I/O.
+</Callout>
+
+![](https://hackmd.io/_uploads/HJjJnmU-a.png)
+
+Exceptions (`Synchronous`, Software Interrupts) - Exceptions are `produced by the processor` while executing instructions either in response to a `programming error` (e.g., divide by zero) or `abnormal condition` (e.g., call a system call or a page fault).
+
+### Interrupt Request
+
+`Different devices` can be associated with different interrupts by means of a `unique interrupt value (max: 256)`
+
+<Callout type="info" emoji="ℹ">
+Interrupt Request (IRQ) - `Specific interrupt` is associated with a `specific device`.
+</Callout>
+
+![](https://hackmd.io/_uploads/B1nBRm8Za.png)
+
+### How an Interrupt Works
+
+How an interrupt works:
+
+* Hardware devices send out an `interrupt signal`.
+* The CPU stops current execution.
+* The interrupt controller sends `INT #` to the CPU.
+* CPU `accesses the Interrupt Vector Table` by `INT # * 4(bit)`
+* The CPU runs the `interrupt service routine (ISR)` to handle the interrupt.
+
+![](https://hackmd.io/_uploads/SkU3RmL-p.png)
+
+<Callout type="info" emoji="ℹ">
+Why we put Code of ISR in the behind - `ISR doesn't have equal size`.
+</Callout>
+
+### Interrupt Handler
+
+Interrupt Service Routine (ISR) or Interrupt Handler - It is part of a `device driver` (the `kernel code` manages the device)
+> Custom defined ISR - find number & code
+
+<Callout type="warning" emoji="⚠️">
+ISR is non-blockable (Cannot Sleep).
+</Callout>
+
+- `Top Halves`
+> **Run immediately** upon receipt of the interrupt and performs only the work that is **time-critical**.
+- `Bottom Halves`
+> Work that can be **performed later** is **deferred** until the bottom half.
