@@ -20,19 +20,27 @@ Creating a Parallel Program
 
 ### Shared-Memory Systems
 
+import { Callout } from 'nextra/components'
+
+<Callout type="info" emoji="ℹ">
 Multiple processors can operate independently but share the same memory resources.
+</Callout>
 
 ![](https://hackmd.io/_uploads/rkAkjLSgp.png)
 
 ### Distributed-Memory Systems
 
+<Callout type="info" emoji="ℹ">
 Processors have their own local memory, there is no concept of global address space across all processors.
+</Callout>
 
 ![](https://hackmd.io/_uploads/H1qbiUSep.png)
 
 ### Hybrid Distributed-Shared Systems
 
+<Callout type="info" emoji="ℹ">
 Multiple shared-memory machines only know about their own memory - not the memory on another machine.
+</Callout>
 
 ![](https://hackmd.io/_uploads/S1UNiUBga.png)
 
@@ -62,12 +70,10 @@ How Do We Write Parallel Programs?
 ---
 
 `Task-parallelism`
-
-We partition the various tasks carried out in solving the problem among the cores.
+> We partition the various tasks carried out in solving the problem among the cores.
 
 `Data-parallelism`
-
-We partition the data used in solving the problem among the cores, and each core carries out more or less similar operations on its part of the data.
+> We partition the data used in solving the problem among the cores, and each core carries out more or less similar operations on its part of the data.
 
 Example
 
@@ -120,7 +126,9 @@ int main() {
 
 An API for Writing Multithreaded Applications, a set of `compiler directives` and library routines.
 
+<Callout type="info" emoji="ℹ">
 Fork-Join Parallelism - `Master thread` spawns a team of threads as needed
+</Callout>
 
 ![](https://hackmd.io/_uploads/SyHPLPYWT.png)
 
@@ -145,7 +153,7 @@ void main() {
 
 NO shared data
 
-Inter-processes communication (IPC) -> MPI (Message Passing Interface) 
+`Inter-processes communication` (IPC) -> `MPI` (Message Passing Interface) 
 
 ![](https://hackmd.io/_uploads/B1CUuPrxa.png)
 
@@ -155,7 +163,9 @@ Inter-processes communication (IPC) -> MPI (Message Passing Interface)
 
 ![](https://hackmd.io/_uploads/BJb45vHg6.png)
 
-Disvantages - false caching vs. network latancy
+<Callout type="warning" emoji="⚠️">
+Disvantages - `false caching` vs. `network latancy`
+</Callout>
 
 ### Data-parallel model
 

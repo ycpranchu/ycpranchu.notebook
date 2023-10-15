@@ -13,13 +13,17 @@ IC Design Considerations
 
 Several conflicting considerations:
 
-- **Design Complexity:** large number of devices/transistors
-- **Performance:** optimization requirements for high performance
-- **Time-to-market:** about a 15% gain for early birds
-- **Cost:** die area, packaging, testing, etc.
-- **Others:** power, signal integrity (noise, etc.), testability, reliability, manufacturability, etc
+- `Design Complexity` - large number of devices/transistors
+- `Performance` - optimization requirements for high performance
+- `Time-to-market` - about a 15% gain for early birds
+- `Cost` - die area, packaging, testing, etc.
+- `Others` - power, signal integrity (noise, etc.), testability, reliability, manufacturability, etc
 
-ppay: power, performance, area, field
+import { Callout } from 'nextra/components'
+
+<Callout type="info" emoji="ℹ">
+ppay - power, performance, area, field
+</Callout>
 
 Sub-wavelength Lithography Problems
 ---
@@ -33,14 +37,18 @@ Traditional VLSI Design Cycles
 2. Functional design -> Verilog
 3. Logic synthesis
 4. Circuit design
-5. **Physical design (PDA, EDA)**
+5. `Physical design (PDA, EDA)`
 6. Fabrication 
 7. Packaging
 
 ![](https://hackmd.io/_uploads/SymibvElp.png)
 ![](https://hackmd.io/_uploads/HkqhZw4lp.png)
 
-將數個功能不同的晶片，整合成「一個」具有完整功能的晶片，再封裝成「一個」積體電路，稱為「系統單晶片」（**SoC：System on a Chip**）
+將數個功能不同的晶片，整合成「一個」具有完整功能的晶片，再封裝成「一個」積體電路，稱為「系統單晶片」
+
+<Callout type="info" emoji="ℹ">
+SoC - System on a Chip
+</Callout>
 
 Abstraction Levels
 ---
@@ -49,7 +57,7 @@ Abstraction Levels
 
 Design of Integrated Systems
 
-![](https://hackmd.io/_uploads/Byez3mvNgp.png)
+![](https://hackmd.io/_uploads/HJ1ug9YZT.png)
 
 Physical Design (PD)
 ---
