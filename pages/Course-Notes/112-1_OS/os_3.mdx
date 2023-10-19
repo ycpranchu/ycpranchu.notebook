@@ -1,0 +1,164 @@
+Operating System L3: Memory Management
+===
+
+Basic Concepts of Memory Management
+---
+
+- `Page Frame` - Partition `physical` address space (actual space on DRAM)
+- `Page` (Virtual) - Partition `virtual` address space (programmer side)
+- Page Frame & Page is `4KB`
+
+Kernel manages all `page frames` and maintains `page tables`.
+
+![](https://hackmd.io/_uploads/SJDIBNLWp.png)
+
+! 1. How the kernel manages (allocates or frees) physical memory (page frame)?
+
+`Virtual Memory Management` - Let all processes `share the same physical address space` via page tables. (each process thinks they own the whole space)
+
+![](https://hackmd.io/_uploads/BknwI48-p.png)
+
+- VA - Virtual Memory
+- TLB - Cache
+
+! 2. How the kernel manages process address space (page)?
+
+Manage Physical Address
+---
+
+### Page Frames Management
+
+memory management unit (MMU) typically deals in pages
+
+Each page frame is managed by a struct page structure 
+> associated with physical pages
+
+![](https://hackmd.io/_uploads/Byo6Gphbp.png)
+
+Overhead: 40B for each struct page, 4KB for each page frame, 4GB DRAM - `Require Only 40MB `
+
+Zone:
+
+The kernel uses the zones to `group pages of similar properties` (or `hardware characteristics`), three primary zones below:
+
+* ZONE_NORMAL- The zone contains normal, regularly mapped, pages.
+> ISR, Page table...
+* ZONE_DMA - Page frames that can undergo `DMA (Direct Memory Access)`.
+> Data Buffering
+* ZONE_HIGHMEM - Some page frames are not permanently mapped into the kernel address space. 
+> Use virtual address, not used in 64bit system
+
+![](https://hackmd.io/_uploads/BktD46nZ6.png)
+
+Nodes (CPU-DRAM Pair):
+
+`Uniform Memory Access` (UMA) vs `Non-Uniform Memory Access` (NUMA)
+
+![](https://hackmd.io/_uploads/rk4vHphWT.png)
+
+Why NUMA?
+
+1. Fast local access
+> Avoid data conjunction
+2. Higher bandwidth
+> More Memory Controller - faster speed, higher cost
+3. Easy to scale out
+
+Maintains a data structure (`pg_data_t`) for each NUMA node
+
+![](https://hackmd.io/_uploads/HylBL62ba.png)
+
+! All the processes share the same kernel - `only 1 Node`.
+
+Granularity: Nodes -> Zones -> Page Frames
+
+- Allocate memory from the `node closest` to the running CPU.
+
+
+### Memory Allocation
+
+Initially, all memory is available and is considered as a large block of `hole`.
+
+system `searches the set for a hole` that is large enough
+
+* First Fit - Search and allocate the first hole that is big enough.
+> Waste Size
+* Best Fit - Search all holes and allocate the smallest hole, which is big enough.
+> Waste Time
+* Worst Fit - Search all holes and allocate the largest hole.
+> Waste Size & Time - But sometimes processes get larger (prevent the content switch & memory allocating time)...
+
+#### Fragmentation
+
+* `External Fragmentation` - Enough total memory space to satisfy a request but the available spaces are `not contiguous`.
+> Paging can solve this!!
+* `Internal Fragmentation` - Occurs when systems split the continuous space into continuous chunks (e.g., page)
+> Waste space!! (data structure < 4KB)
+
+Linux Page Allocation
+---
+
+* `alloc_pages()` function allocates a `single page` or `2order pages` and returns pointer to the first page’s page struct. (Buddy System)
+* For more general `byte-sized allocations`, the kernel provides `kmalloc()`.
+
+![](https://hackmd.io/_uploads/SyqZk03ZT.png)
+
+`alloc_pages()` 
+
+Linux Page Allocation -- Buddy System
+> Prevent Internal Fragmentation
+
+![](https://hackmd.io/_uploads/H1MbxA3Z6.png)
+
+Why Slab Layer?
+
+`Grouping kernel objects` (i.e., data structure) into slab caches. `Pre-allocating memory` pages in slabs leading to faster memory allocation.
+
+When the data structure is no longer needed, it is `returned to the free list instead of deallocated`. 
+
+![](https://hackmd.io/_uploads/rJZFm0hba.png)
+
+* The slab layer acts as a `generic data structure-caching layer`
+> Frequent allocation and deallocation can result in memory fragmentation.
+* Can be made per-processor, so that no locks are required for allocation and deallocation.
+* Can be NUMA-aware
+
+Main Idea: Avoid from allocating and freeing physical address as frequent as possible.
+
+![](https://hackmd.io/_uploads/SJ6yr02Z6.png)
+
+![](https://hackmd.io/_uploads/S1WsHChZp.png)
+> processes smaller than 4KB
+
+Run Allocation: Only when there does not exist any partial or empty slabs in each cache.
+
+Run Free: Only when available memory grows low.
+
+### Linux Page Allocation
+
+Two common libraries to allocate kernel memory: kmalloc() and vmalloc().
+
+![](https://hackmd.io/_uploads/HJei8A3Wp.png)
+
+kmalloc() vs vmalloc()
+
+The kmalloc() function obtains kernel memory in byte-sized chunks.
+
+// Read the ppt
+
+The vmalloc() function allocates memory that is only virtually contiguous.
+
+### High Memory
+
+On 32-bit system, kernel only has 1GB virtual memory. What if systems have 8GB memory space?
+
+
+Kernel address space reserves a 128MB dynamic mapping area, called High Memory (e.g., 896MB ~ 1GB) 
+> Higher performance (no translation)
+
+![](https://hackmd.io/_uploads/SJcfd0n-T.png)
+
+High Memory: High memory is memory that is not permanently mapped into the kernel's address space. (Temporarily Mapping)
+
+Usage: file caching, DMA & networking buffers, 
+High memory is a hack. We don't need it on 64-bit systems.

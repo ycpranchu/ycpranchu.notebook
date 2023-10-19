@@ -86,6 +86,7 @@ How an interrupt works:
 <Callout type="info" emoji="ℹ">
 Why we put Code of ISR in the behind - `ISR doesn't have equal size`.
 </Callout>
+> ISR pointer is static, ISR code can be dynamic.
 
 ### Interrupt Handler
 
@@ -96,7 +97,22 @@ Interrupt Service Routine (ISR) or Interrupt Handler - It is part of a `device d
 ISR is non-blockable (Cannot Sleep).
 </Callout>
 
-- `Top Halves`
+<Callout type="info" emoji="ℹ">
+Linux `partiall` supports `Nested Interrupts` 
+</Callout>
+
+- `Top Halves` - cannot be interrupted
 > **Run immediately** upon receipt of the interrupt and performs only the work that is **time-critical**.
-- `Bottom Halves`
+- `Bottom Halves` - can be interrupted by higher priority
 > Work that can be **performed later** is **deferred** until the bottom half.
+
+### GPU Context Switch
+
+Key difference: 
+
+- `CPUs support preemptive multitasking`, enabling the operating system to frequently switch betwee tasks.
+- `GPUs primarily perform non-preemptive multitasking`, running GPU tasks to completion without preemption.
+
+<Callout type="warning" emoji="⚠️">
+GPU driver is run on CPU
+</Callout>
