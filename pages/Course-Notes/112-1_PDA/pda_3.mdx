@@ -1,0 +1,318 @@
+Physical Design Automation Unit 3: Partitioning
+===
+
+- Mostly used in `FPGA Partitioning`
+- Discussed methods: group migration (K-L, F-M), network flow (FBB), simulated annealing.
+- k-way partitioning
+- Clustering
+- Multi-level circuit partitioning
+
+Partitioning
+---
+
+### Basic Definitions in Physical Design
+
+* `Cell` - a logic block (gates)
+* `Pin` - a wire
+* `Nets` - a collection of pins
+* `Netlist` - a list of all nets
+
+### Basic Definitions in Physical Design
+
+* `Manhattan distance`
+* Rectilinear spanning tree O(N) vs. `Steiner tree (NP-Hard)`
+* `Steiner tree` - with Steiner points
+
+![](https://hackmd.io/_uploads/ByhLXEFea.png)
+
+### What is Partitioning?
+
+1. Decomposition of complex system into smaller subsystems.
+2. Each subsysem will be designed `independently`.
+> minimize the interconnections among the subsystems
+3. Decompose until each subsystem is a managable size.
+
+![](https://hackmd.io/_uploads/HkKfF4Kga.png)
+
+* The levels of partitioning: `system, board, chip`.
+* Hierarchical partitioning: higher costs for higher levels.
+
+### Circuit Partitioning
+
+\# of connections among the components is minimized -> `independent`
+
+import { Callout } from 'nextra/components'
+
+<Callout type="info" emoji="ℹ">
+Find minimal Cut Size.
+</Callout>
+
+![](https://hackmd.io/_uploads/SJ9f_NKla.png)
+
+### Problem Definition: Partitioning
+
+- `k-way partitioning` - Given a graph G(V, E), problem is to divide the set V into k disjoint subsets, E has weight.
+- `Bounded size constraint`
+- `Min-cut cost between two subsets`
+
+`2-way, balanced` partitioning problem is NP-complete
+
+Kernighan-Lin Algorithm
+---
+
+An `iterative`, `2-way`, `balanced` partitioning (bi-sectioning) heuristic.
+
+Till the cut size keeps decreasing
+* Vertex pairs which give `the largest decrease or the smallest increase` in cut size are `exchanged`.
+* These vertices are then `locked` (and thus are prohibited from participating in any further exchanges).
+* This process `continues until all the vertices are locked`.
+* Find the set with the `largest partial sum` for swapping.
+* Unlock all vertices.
+
+<Callout type="info" emoji="ℹ">
+largest partial sum -> max cost reduction = min cut-cost
+</Callout>
+
+![](https://hackmd.io/_uploads/HyYHj4Flp.png)
+
+### Properties
+
+![](https://hackmd.io/_uploads/Hy-L3VtgT.png)
+
+- `External cost` - # of connections to other side partition
+- `Internal cost` - # of connections to current side partition
+- `Gain` = E - I
+
+<Callout type="info" emoji="ℹ">
+-2Cab: swap(a, b) 不影響 cost，減去多餘
+</Callout>
+
+![](https://hackmd.io/_uploads/SyHmp4Fl6.png)
+
+### Time Complexity of K-L Algorithm
+
+![](https://hackmd.io/_uploads/BkkVkBYx6.png)
+
+* Line 4: Initial computation of D: O(n2).
+* Line 5: The for-loop: O(n).
+* The body of the loop: O(n2).
+* Lines 4--11: Each pass of the repeat loop: O(n3).
+* Suppose the repeat loop terminates after r passes.
+* The total running time: `O(rn3)`.
+
+### Extensions of K-L Algorithm
+
+- `Unequal sized subsets`
+> add n2-n1 dummy vertices to set A
+- `Unequal sized “vertices”`
+> assume smallest “vertex” has unit size, replace vertex size s with s vertices which are fully connected with infinite weight
+- `k-way partition`
+
+### Drawbacks of the Kernighan-Lin Heuristic
+
+1. handles only unit vertex weights
+2. handles only exact bisections
+3. cannot handle `hypergraphs` (`edge to more than 2 vertexs`)
+4. time complexity is high
+
+Coping with Hypergraph
+---
+
+![](https://hackmd.io/_uploads/SJLEJtFg6.png)
+
+`net cut` is a more accurate measurement for cut cost
+
+![](https://hackmd.io/_uploads/B1Lc1Ftla.png)
+
+### Net-Cut Model
+
+Edge weight for an edge connecting cells x and y:
+
+$$
+\mathit{W_{xy}} =  
+2
+/
+\mathit{n(i)}
+$$
+ 
+![](https://hackmd.io/_uploads/r1MplFtg6.png)
+
+Easy `Gain` modification of the K-L heuristic:
+
+![](https://hackmd.io/_uploads/SkP7rYYgT.png)
+
+- Weight = Origin / 2
+
+Fiduccia-Mattheyses Heuristic
+---
+
+A linear time heuristic for improving network partitions
+
+- Aims at `reducing net-cut costs`; the concept of cutsize is extended to hypergraphs.
+- Only a `single vertex` is moved across the cut in a single move.
+- `Vertices are weighted`.
+- Can handle “unbalanced” partitions; a `balance factor` is introduced.
+- A `special data structure` is used to select vertices to be moved across the cut to improve running time.
+- `Time complexity O(P)`, where P is the total # of terminals.
+
+### Notation
+
+![](https://hackmd.io/_uploads/ryTC9e-Za.png)
+
+### Cut
+
+![](https://hackmd.io/_uploads/B1Rhhl-W6.png)
+
+### Input Data Structures
+
+![](https://hackmd.io/_uploads/SyP8nu1f6.png)
+
+### Basic Ideas: Balance and Movement
+
+![](https://hackmd.io/_uploads/rJpd2OkM6.png)
+
+### Cell Gains and Data Structure Manipulation
+
+![](https://hackmd.io/_uploads/Byechdkz6.png)
+
+### Computing Initial Gains of All Free Cells
+
+![](https://hackmd.io/_uploads/Ske22O1Ga.png)
+
+### Updating Cell Gains
+
+![](https://hackmd.io/_uploads/SyIeadkGp.png)
+
+#### Algorithm
+
+![](https://hackmd.io/_uploads/r1zHTu1zT.png)
+
+#### Complexity
+
+To update the cell gains, it takes O(p(i)) work for cell i.
+
+- Find the best cell i to move in O(1)
+- After each move, update gain buckets in O(p(i))
+
+`Total time = p(1) + p(2) + … + p(C) = O(P).`
+
+### Summary
+
+![](https://hackmd.io/_uploads/ryxJkYJfp.png)
+
+Summary of this Example (1/3)
+
+![](https://hackmd.io/_uploads/BJarlFJf6.png)
+
+Summary of this Example (2/3)
+
+![](https://hackmd.io/_uploads/HywUlYkza.png)
+
+Summary of this Example (3/3)
+
+![](https://hackmd.io/_uploads/H1WDgKyMa.png)
+
+Simulated Annealing
+---
+
+![](https://hackmd.io/_uploads/SyJagtkz6.png)
+
+Non-zero probability for `up-hill` moves.
+
+![](https://hackmd.io/_uploads/SyHRxKkGT.png)
+
+### Analogy
+
+![](https://hackmd.io/_uploads/HJZmfYyzp.png)
+
+### Basic Ingredients for Simulated Annealing
+
+* Solution space
+* Neighborhood structure
+* Cost function
+* Annealing schedule
+
+#### 1. Solution space: set of all partitions
+
+![](https://hackmd.io/_uploads/H11jfKkG6.png)
+
+#### 2. Neighborhood structure
+
+![](https://hackmd.io/_uploads/S1YoMF1fa.png)
+
+#### 3. Cost function: f = C + l B
+
+* C: the partition cost as used before
+* B: a measure of how balance the partition is
+* l: a constant (l is bigger, B is more important)
+
+![](https://hackmd.io/_uploads/r10cXF1zT.png)
+
+#### 4. Annealing schedule
+
+![](https://hackmd.io/_uploads/HkA0mFJfp.png)
+
+Network Flow Based Partitioning
+---
+
+Based on `max-flow` `min-cut` theorem.
+
+![](https://hackmd.io/_uploads/rJM7NYyzp.png)
+
+... (Not mention deeply in the class)
+
+Large-scale Circuit Partitioning
+---
+
+Keys for large-scale circuits - `clustering`, `multilevel`
+
+1. `Clustering` - Reduce the problem size by grouping highly connected components and treat them as a super node. (cut down the problem size -> speed up)
+2. `Multilevel optimization`
+    - `Coarsening/clustering` - Recursively clusters the instance until its size is smaller than a given threshold.
+    - `Uncoarsening/partitioning` - Declusters the instance while applying a partitioning refinement algorithm (e.g., F-M or greedy approach).
+
+![](https://hackmd.io/_uploads/HkpgSK1MT.png)
+
+hMetis Multilevel Coarsening
+---
+
+hMetis algorithm utilizes three algorithms to compute the multi-level cluster hierarchy
+
+* Edge coarsening (EC)
+* Hyperedge coarsening (HEC)
+* Modified hyperedge coarsening (MHEC)
+
+### Multi-level Coarsening Algorithms
+
+#### 1. Edge Coarsening (EC)
+
+![](https://hackmd.io/_uploads/ByW88tJG6.png)
+
+![](https://hackmd.io/_uploads/HyIwLtkfT.png)
+
+Obtaining Clustered-level Netlist
+
+![](https://hackmd.io/_uploads/S1Lkvt1zT.png)
+
+#### 2. Hyperedge Coarsening (HEC)
+
+![](https://hackmd.io/_uploads/rymK8KJza.png)
+
+![](https://hackmd.io/_uploads/SyYc8Kyfa.png)
+
+![](https://hackmd.io/_uploads/BJsoUK1Ga.png)
+
+Obtaining Clustered-level Netlist
+
+![](https://hackmd.io/_uploads/HyPxwY1zp.png)
+
+#### 3. Modified Hyperedge Coarsening (MHEC)
+
+![](https://hackmd.io/_uploads/SJSbPtyMa.png)
+
+![](https://hackmd.io/_uploads/H1QfPFyGa.png)
+
+Obtaining Clustered-level Netlist
+
+![](https://hackmd.io/_uploads/r1FXwt1z6.png)
+
