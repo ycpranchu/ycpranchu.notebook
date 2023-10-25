@@ -29,7 +29,7 @@ import { Callout } from 'nextra/components'
 2. How the kernel manages `process address space` (page)?
 </Callout>
 
-Manage Physical Address
+Physical Memory Management
 ---
 
 ### Page Frames Management
@@ -44,9 +44,6 @@ Each page frame is managed by a struct page structure
 ![](https://hackmd.io/_uploads/Byo6Gphbp.png)
 
 Overhead - 40B for each struct page, 4KB for each page frame, `4GB DRAM - Require Only 40MB `
-
-Manage Kernel Physical Address
----
 
 ### Zone
 
@@ -88,7 +85,7 @@ Granularity: Nodes -> Zones -> Page Frames
 
 - Allocate memory from the `node closest` to the running CPU.
 
-Memory Allocation
+Physical Memory Allocation
 ---
 
 Initially, all memory is available and is considered as a large block of `hole`.
@@ -135,7 +132,7 @@ Prevent Internal Fragmentation
 `Grouping kernel objects` (i.e., data structure) into slab caches. `Pre-allocating memory` pages in slabs leading to faster memory allocation.
 
 <Callout type="warning" emoji="⚠️">
-When the data structure is no longer needed, it is `returned to the free list instead of deallocated`. 
+When the `data structure` is no longer needed, it is `returned to the free list and modify it instead of deallocated`. 
 </Callout>
 
 ![](https://hackmd.io/_uploads/rJZFm0hba.png)
@@ -150,6 +147,7 @@ Avoid from allocating and freeing physical address as frequent as possible.
 </Callout>
 
 ![](https://hackmd.io/_uploads/SJ6yr02Z6.png)
+> Each type of data structure has single cache.
 
 `Structure: Cache -> Slab -> Page`
 
@@ -171,14 +169,14 @@ Two common libraries to allocate kernel memory - `kmalloc()` and `vmalloc()`.
 
 #### kmalloc() vs vmalloc()
 
-- The `kmalloc()` function obtains kernel memory in byte-sized chunks.
+- The `kmalloc()` function obtains kernel memory in `byte-sized chunks`.
 > Note, malloc() in C library is for allocating user space memory
 
 <Callout type="info" emoji="ℹ">
 If we need a `whole 4KB page`, `alloc_pages()` in prior slides fits better.
 </Callout>
 
-- The `vmalloc()` function allocates memory that is only virtually contiguous.
+- The `vmalloc()` function allocates memory that is `only virtually contiguous`.
 > Requires page tables to maintain the mapping between virtual and physical addresses.
 
 <Callout type="info" emoji="ℹ">
@@ -205,3 +203,7 @@ Usage - file caching, DMA & networking buffers
 <Callout type="info" emoji="ℹ">
 High memory is a hack. We don't need it on 64-bit systems.
 </Callout>
+
+Virtual Memory Management
+---
+
