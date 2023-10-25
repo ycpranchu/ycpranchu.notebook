@@ -151,9 +151,9 @@ Avoid from allocating and freeing physical address as frequent as possible.
 
 `Structure: Cache -> Slab -> Page`
 
-- Full Lists
-- Partial Lists
-- Empty Lists
+- Full Lists - All objects on a slab marked as used
+- Partial Lists - Slab comprises both used and free objects
+- Empty Lists - All objects on a slab marked as free
 
 ![](https://hackmd.io/_uploads/S1WsHChZp.png)
 > processes smaller than 4KB
@@ -207,3 +207,111 @@ High memory is a hack. We don't need it on 64-bit systems.
 Virtual Memory Management
 ---
 
+On Linux, each process is given a `unique` and `flat` 32 or 64-bit address space.
+
+**Unique:** Processes can store `different data at the same virtual address` in their `own address space`.
+> Threads share address space with their processes.
+
+**Flat:** Modern Linux system does not use segmentation.
+
+![](https://hackmd.io/_uploads/r1eTyWIGp.png)
+> 32-bit address space - 0 to 2^32^ or 4294967295
+
+Not every address is legal, `intervals of legal addresses` are `memory areas`.
+> Permission - readable, writeable, executable
+
+### The Memory Descriptor
+
+Memory descriptor (`struct mm_struct`) is a **kernel data structure** contains all information related to the **process’s address space**.
+> Processes access the mm field in the process descriptor.
+
+![](https://hackmd.io/_uploads/SkipdWLzT.png)
+
+- `mm_users` specifically `counts the number of users` within the same process that are sharing the memory map.
+- `mm_count` tracks `references to the memory map`, which can come from multiple processes, threads, or sources.
+> mm_count < = mm_users, because it's focused on the per-process reference count.
+
+<Callout type="warning" emoji="⚠️">
+mm_count increases when system calls
+</Callout>
+
+### Virtual Memory Areas (VMA)
+
+The memory area (or VMA) structure (vm_area_struct) describes a single memory area over a `contiguous interval in a given virtual address space`.
+
+![](https://hackmd.io/_uploads/ryP7T-UMp.png)
+
+<Callout type="warning" emoji="⚠️">
+Two VMAs `cannot overlap` with each other. 
+</Callout>
+
+![](https://hackmd.io/_uploads/ry6bJM8GT.png)
+
+<Callout type="info" emoji="ℹ">
+`Merge two VMAs` if they overlap with each others.
+</Callout>
+
+How to create or expand a VMA - `do_mmap()` is the function used to `add an address interval` to a process’s address space.
+> Whether that means expanding an existing memory area or creating a new one.
+
+![](https://hackmd.io/_uploads/rJsgefLzT.png)
+
+Page Tables
+---
+
+After CPUs enable `virtual memory management (or MMU)`, all virtual addresses shall be `converted to physical addresses before being accessed`.
+
+* a bunch of 8B page table entries (PTE) on 64-bit systems
+* larger Memory, More PTEs
+* multi-level page tables. (4-level for 64-bit systems)
+* TLB cache prevent frequently looking up a page table
+
+### Page Fault
+
+- `Minor Page Fault` - Page is `already in the memory but is not marked` in the MMU as being loaded in memory.
+> e.g. malloc() allocates physical addresses once being touched
+- `Major Page Fault` - Page is `not in the memory`.
+> May cause expensive I/O movement costs
+
+### How the CPU Walks Page Tables
+
+The base address of PGD is maintained in `CPU’s CR3 register`.
+> CPU can walk automatically. Or kernel code can also walk it.
+
+![](https://hackmd.io/_uploads/SyWrbzLzp.png)
+
+<Callout type="warning" emoji="⚠️">
+Why 9-bits - Page Size = 4 KB, could accommodate `512 (9-bits) entries (4 KB / 8 B)`
+</Callout>
+
+### Why 4-Level Page Tables for 64-bit System
+
+* Page Size = 4 KB (2^12^ B)
+* Virtual Address Space Size = 2^48^ B (48-bit virtual address)
+* Page Table Entry Size is 8B
+
+How many levels:
+
+* Last-Level - (2^48^ / 2^12^) * 8 = 2^39^ B ( > 2^12^ B)
+* Last 2 Level - (2^39^ / 2^12^) * 8 = 2^30^ B ( > 2^12^ B)
+* Last 3 Level - (2^30^ / 2^12^) * 8 = 2^21^ B ( > 2^12^ B)
+* Last 4 Level - (2^21^ / 2^12^) * 8 = 2^12^ B ( \<\= 2^12^ B) `= Page Size`
+
+<Callout type="warning" emoji="⚠️">
+`Memory is byte addressable`, so one bit can address one byte
+</Callout>
+
+![](https://hackmd.io/_uploads/B1oXJXUf6.png)
+
+### brk() & mmap()
+
+`brk()` - Adjust the `program's data heap` (segment) by changing the program's break address (modify `vm_end`).
+> Malloc() function calls brk() system call usually.
+
+![](https://hackmd.io/_uploads/SktiV78Ga.png)
+
+![](https://hackmd.io/_uploads/rkO4Lm8f6.png)
+
+`mmap()` - Maps files, devices, or other objects into their virtual address space.
+
+![](https://hackmd.io/_uploads/Hkya4QLMa.png)
