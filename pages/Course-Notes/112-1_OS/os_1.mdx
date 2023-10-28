@@ -9,6 +9,12 @@ Three basic components:
 
 ![](https://hackmd.io/_uploads/S1Fs6nrg6.png)
 
+Von-Neumann Architecture:
+
+1. CPU `fetches` an instruction from memory.
+2. Then, CPU `decodes and executes` the instruction.
+3. CPU fetches next data (`Automatically Increment PC`).
+
 import { Callout } from 'nextra/components'
  
 <Callout type="warning" emoji="⚠️">
@@ -29,9 +35,9 @@ What is Operating Systems
 The role of an OS is to `coordinate` and manage `hardware devices`.
 </Callout>
 
-* `Transparency` - Users do not need to worry about **hardware managements or contentions**.
-* `Resource Allocator` - **Manage** CPU time, memory space and I/O resources.
-* `Control Program` - **Prevent errors** and improper use of computers. **(permission control)**
+* Transparency - Users do not need to worry about `hardware managements or contentions`.
+* Resource Allocator - `Manage` CPU time, memory space and I/O resources.
+* Control Program - `Prevent errors` and improper use of computers. `(permission control)`
 
 ![](https://hackmd.io/_uploads/BJVRkpBgp.png)
 
@@ -64,36 +70,39 @@ Is Linux Kernel a Process: No, `Context-Switch expensive`
 
 ![](https://hackmd.io/_uploads/rkttE6Slp.png)
 
----
-
-- Kernel runs as `part of a user process`. 
+<Callout type="warning" emoji="⚠️">
+Kernel runs as `part of a user process`.
+</Callout>
 > Noting: A specific part of all processes' virtual address space points to the same physical address storing kernel code. 
+
 - `Direct mapping`
 
 ![](https://hackmd.io/_uploads/SkLt7KBZa.png)
 
-- Just switch pointer (User mode to Kernel mode)
+`Just switch pointer` (User mode to Kernel mode, without context switching).
 
 ### How to Trigger/Request Kernel Services
 
 <Callout type="warning" emoji="⚠️">
-`only` when some `special events are triggered`
+`Only` when some `special events are triggered`.
 </Callout>
 
-- Hardware interrupts (alert signal) 
-    - Timer interrupt
-    - I/O Interrupt
+Hardware interrupts - `alert signal`
 
-* Software-generated interrupts (Traps or Exceptions)
-    - Specific requests from user processes (`System Call`, such as Read/Write)
-    > Program Library
-    - Some errors (e.g. invalid memory access or page faults)
+- Timer interrupt
+- I/O Interrupt
+
+Software-generated interrupts - `Traps or Exceptions`
+
+- Specific requests from user processes (`System Call, such as Read/Write`)
+> Program Library
+- Some errors (e.g. invalid memory access or `page faults`)
 
 ![](https://hackmd.io/_uploads/ryNq8TrgT.png)
 
 ### A High-Level Overview
 
-Libraries (e.g., C/C++ Library -> Do Memory Allocation): `User System Calls`
+`Libraries` (e.g., C/C++ Library -> Do Memory Allocation): `User System Calls`
 
 ![](https://hackmd.io/_uploads/r1Ogw6Hxa.png)
 
@@ -102,14 +111,14 @@ Libraries (e.g., C/C++ Library -> Do Memory Allocation): `User System Calls`
 ![](https://hackmd.io/_uploads/r13_O6Bxa.png)
 
 <Callout type="warning" emoji="⚠️">
-`Latency`: for `single` user
+`Latency` - for `single` user
 </Callout>
 
 * The device trend `blurs the boundary` between memory and storage.
-* Storage response time catches up with `context switch overhead` (1~10 us).
+* `Storage response time` catches up with `context switch overhead` (1~10 us).
 > CPU don't need to wait
 * The `overhead` of running `file system` becomes critical (e.g., page cache).
 * Huge memory demands increases deployment cost. (Right page size?)
-> Problem: page table
+> Problem - large page table
 
 ![](https://hackmd.io/_uploads/rJPetarl6.png)
