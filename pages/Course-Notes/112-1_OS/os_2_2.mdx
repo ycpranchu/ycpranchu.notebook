@@ -1,9 +1,9 @@
 Operating System L2: Interrupt
 ===
 
-* Interrupts
-    * `Software Interrupt` - How system call works. Also, how to implement it.
-    * `Hardware Interrupt` - How interrupt handler (or interrupt service routine) works.
+Interrupts
+* `Software Interrupt` - How system call works. Also, how to implement it.
+* `Hardware Interrupt` - How interrupt handler (or interrupt service routine) works.
 
 System Call
 ---
@@ -11,8 +11,9 @@ System Call
 import { Callout } from 'nextra/components'
 
 <Callout type="info" emoji="ℹ">
-Goal: let user-space processes `interact with the operating system`
+Goal - let user-space processes `interact with the operating system`.
 </Callout>
+> Kernel provides a set of interfaces, called system calls.
 
 e.g. `function calls` defined in the C library
 
@@ -24,9 +25,10 @@ e.g. `function calls` defined in the C library
 
 How to run system call:
 
-1. `Software interrupt call system call handler`
+1. Software interrupt call `system call handler`
 1. The CPU switches from `user mode to kernel mode` (Not Process Context Switch!!)
 1. Execute `code corresponding` to the system call
+> It is not possible for user-space applications to execute kernel code directly
 
 ![](https://hackmd.io/_uploads/rJ2Lzz6xa.png)
 
@@ -59,15 +61,17 @@ Asynchronous - CPU need to wait I/O.
 
 ![](https://hackmd.io/_uploads/HJjJnmU-a.png)
 
-Exceptions (`Synchronous`, Software Interrupts) - Exceptions are `produced by the processor` while executing instructions either in response to a `programming error` (e.g., divide by zero) or `abnormal condition` (e.g., call a system call or a page fault).
+Exceptions (`Synchronous`, Software Interrupts, No I/O) - Exceptions are `produced by the processor` while executing instructions either in response to a `programming error` (e.g., divide by zero) or `abnormal condition` (e.g., call a system call or a page fault).
 
 ### Interrupt Request
 
 `Different devices` can be associated with different interrupts by means of a `unique interrupt value (max: 256)`
 
 <Callout type="info" emoji="ℹ">
-Interrupt Request (IRQ) - `Specific interrupt` is associated with a `specific device`.
+Interrupt Request (IRQ) - `Specific interrupt` is associated with a `specific device`, and the `kernel knows this`.
 </Callout>
+
+> IRQ 0 => timer interrupt / IRQ 1 => keyboard interrupt
 
 ![](https://hackmd.io/_uploads/B1nBRm8Za.png)
 
@@ -94,7 +98,7 @@ Interrupt Service Routine (ISR) or Interrupt Handler - It is part of a `device d
 > Custom defined ISR - find number & code
 
 <Callout type="warning" emoji="⚠️">
-ISR is non-blockable (Cannot Sleep).
+Challenge: ISR is non-blockable (Cannot Sleep).
 </Callout>
 
 <Callout type="info" emoji="ℹ">

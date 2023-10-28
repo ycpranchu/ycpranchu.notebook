@@ -92,13 +92,12 @@ Linux Implementation - `copy_process()`
 - Allocate a new kernel stack (e.g., thread_info) and process descriptor (i.e., task_struct)
 - Copy (e.g., program counter, states) or set (e.g., `PID`) fields in the process descriptor
 - Set the state field to `TASK_UNINTERRUPTABLE` (Reason: initialization is non-interruptible)
-- Duplicate parent’s `page table`
-- `Duplicate (Process) or Share (Thread)` - Open files, filesystem information, signal handlers, process address space *(Notice: Does not share Stack)*, and namespace
+- `Duplicate (Process) or Share (Thread)` - Open files, filesystem information, signal handlers, page table, process address space *(Notice: Does not share Stack)*, and namespace
 
 ### Process vs Thread
 
 <Callout type="info" emoji="ℹ">
-Thread (Lightweight Process): Executes `within the same program` in a `shared memory address space` (also share open files and page tables).
+Thread (Lightweight Process) - Executes `within the same program` in a `shared memory address space` (also share open files and `page tables`).
 </Callout>
 
 * Linux implements all threads as `standard processes`.
@@ -111,7 +110,7 @@ Thread (Lightweight Process): Executes `within the same program` in a `shared me
 Creating Threads: `clone() is identical to fork()`, except that shared:
 </Callout>
 
-1. the address space
+1. the address space (page tables)
 1. file system resources
 1. file descriptors
 1. signal handlers
@@ -133,16 +132,21 @@ Creating Threads: `clone() is identical to fork()`, except that shared:
 4. Call `schedule()` to switch to a new process.
 5. After the `parent retrieves the information`, the process's `kernel stack` (including task_struct and thread_info) will be `deallocated`.
 
+> Linux supports three type of IPC message queues, semaphores and shared memory
+
 Process Scheduling
 ---
 
-### Multitacking Systems
+### Multitasking Systems
+
+- Single Processor - Time sharing and it is `virtual parallelism`. (Multiprogramming)
+- Multiple Processors - Run on different processors concurrently.
 
 Criteria for Schedulers: `Fairness`, `Response Time` (Interactive), `Throughput`
 
 - `Cooperative`
 > Processes voluntarily yield CPU. (high-priority can't preempt)
-- `Preemptive`
+- `Preemptive` (The scheduler decides when a process is to cease running and a new process is to begin running.)
 > Involuntarily suspend (context switch) a running process.
 - `Timeslice`
 > The time a process runs before it is preempted (limit the usage of high-priority)
@@ -165,35 +169,39 @@ Timeslice (static mapping) - limit the usage of high priority:
 Challenge 1 - Triggers context switch frequently if all processes are low priority.
 </Callout>
 
+- Fairness Challenge - Preempt a process by considering static values, such as `timeslice and priority`.
+
 <Callout type="warning" emoji="⚠️">
 Challenge 2 - Timeslice difference is huge for processes with higher nice value (lower priority)
 </Callout>
 
 > 2X Timeslice for nice value 18 and nice value 19 - Resource Unbalance
+
 - `CFS` can solve these challenges, but O(1) cannot.
 
 Process Characteristics:
 
 - I/O-Bound - Spends much of time `submitting and waiting on I/O requests`.
-> Policy: Run more frequently and interactive, shorter timeslice
+> Policy - Run more frequently and interactive, shorter timeslice
 * Processor-Bound - Spends much of time `executing code`.
-> Policy: Run less frequently, longer timeslice
+> Policy - Run less frequently, longer timeslice
 
 Maintenance Overhead:
 
 * How to find the next process: (1) Queue (2) Tree (3) Bit-map
-* Global runqueue `(maintain priority but Lock)` or Per-processor runqueue (Processor's utilization)
+* Global runqueue `(maintain priority but need to Lock)` or Per-processor runqueue (Processor's utilization)
 
 ### Realtime Scheduling Policies
 
-- `Soft Realtime` - kernel `tries` to schedule applications within timing deadlines. (Linux only provides soft realtime)
+- `Soft Realtime` - kernel `tries` to schedule applications `within timing deadlines`. (Linux only provides soft realtime)
 - `Hard Realtime` - systems are `guaranteed` to meet any scheduling requirements within certain limits. (Autopilot)
 
 Linux Realtime Scheduling Policies:
 
-- Priority Range: `0~99 (Realtime Processes)`, `100~139 (Normal Processes)`
-    - `FIFO (SCHED_FIFO)` - simple
-    - `Round-Robin (SCHED_RR)` - FIFO with timeslice
+- Priority Range: `0~99 (Realtime Processes)`, `100~139 (Normal Processes, Nice Value)`
+    - `FIFO (SCHED_FIFO)` - FIFO tasks have no timeslice and can run indefinitely.
+    > Only a high priority FIFO or RR Tasks can preempt.
+    - `Round-Robin (SCHED_RR)` - FIFO with `timeslice`
     > A lower-priority process can **never** preempt a SCHED_RR task, even if its timeslice is exhausted.
 
 <Callout type="info" emoji="ℹ">
@@ -203,17 +211,17 @@ Linux Realtime Scheduling Policies:
 Linux Process Scheduler
 ---
 
-### O(N) (simple)
+### O(N) Before Kernel 2.4 (simple)
 
-- share a `global runqueue`, sorted by priority
-- Bad: shall `lock` the runqueue, once only a process can access
-- Bad: processes shall be `inserted` to an expired queue (out of running time) `in order, hard to scale`
+- `share a global runqueue`, sorted by priority (140-bit)
+- Bad - shall `lock the runqueue`, once only a process can access
+- Bad - processes shall be `inserted to an expired queue` (out of running time) `in order, hard to scale`
 
 <Callout type="warning" emoji="⚠️">
 Want to solve - `Lock`.
 </Callout>
 
-### O(1) (Fast)
+### O(1) Kernel 2.5 (Fast)
 
 - `active array (bitmap)`, 0~139 high to low priority (40 nice-value + 100 real-value)
 - `Hardware support` to find the leftmost bit.
@@ -229,17 +237,19 @@ Want to solve - `Lock`.
 - `expired bitarray` - when processes use all the timeslice, put into the expired array.
 - When `no bit is set` in active bitarray, `switch active and expired bitarrays`.
 
+> Find the leftmost bit is supported by hardware.
+
 <Callout type="warning" emoji="⚠️">
-Want to solve - `Low priority processes will not have the usage to CPU`.
+Want to solve - Low interactive performance (`Low priority processes will not have the usage to CPU`).
 </Callout>
 
-### CFS (Completely Fair Scheduler)
+### CFS (Completely Fair Scheduler) Kernel 2.6
 
 * Goal - more interactive and more `Fair` than O(1).
 * Concept
     * (1) Instead of statically mapping timeslice, each process would receive `1/n of the processor's time` (fair share)
     * (2) Schedule processes for `infinitely small durations`
-* Complexity - log(n) // RB-tree
+* Complexity - log(n) => RB-tree
 
 ![](https://hackmd.io/_uploads/SyXNf5S-T.png)
 
@@ -258,29 +268,29 @@ Vruntime = delta_exec() * `NICE_Weight/NICE_k_Weight`
 * `delta_exec` - Period to enter scheduler (e.g.,  6ms or 0.75ms, a constant)
 * `NICE_Weight` - Weight for the corresponding nice value (e.g., 0 -> 1024)
 * `NICE_k_Weight` - Overall weights of the all k running processes
-* Keep the virtual runtime of all `running` processes the same
+* `Keep the virtual runtime` of all `running` processes the same
 
 ![](https://hackmd.io/_uploads/r1QdpZTeT.png)
 
-* Goal: Be more interactive and `Fair` than O(1).
-* How to decide the weight? 
-    * Ans: Follow the 10% effect
+* Goal - Be more interactive and `Fair` than O(1).
+* How to decide the weight? Ans - Follow the `10% effect`
 
 <Callout type="info" emoji="ℹ">
-Update: NewVtime = OldVtime + `Actual_Runtime/Weight`
+Update - NewVtime = OldVtime + `Actual_Runtime/Weight`
 </Callout>
 
-<Callout type="info" emoji="ℹ">
-`Actual_Runtime` smaller, `NewVtime` nicer
+<Callout type="warning" emoji="⚠️">
+`Actual_Runtime` smaller, `NewVtime` smaller, `delta_exec` smaller
 </Callout>
 
 Process Context Switch
 ---
 
 Progress content - Contents of `user address space` (e.g., page table), `hardware registers (e.g., PC)` and `kernel data structures` that relate to the process.
+> Similar to an ”environment” to run something
 
 <Callout type="info" emoji="ℹ">
-Process Context Switch: Switching from one runnable process to another.
+Process Context Switch - Switching from one runnable process to another.
 </Callout>
 
 `switch_mm()` - Switch the virtual memory mapping (e.g., page table, TLB)
@@ -310,5 +320,5 @@ Before switching to kernel mode, CPU shall `save user mode context`.
 > User mode context - program counter, user-mode-specific state (e.g., user-space stack pointer register (ESP or RSP), floating point register, user-space instruction pointer)
 
 <Callout type="info" emoji="ℹ">
-`Save Context` - Write back all those registers to the corresponding process descriptor (i.e., task_struct) in main memory. (kernel-mode to user-mode)
+`Save Context` - `Write back` all those `registers` to the corresponding `process descriptor (i.e., task_struct) in main memory`.
 </Callout>

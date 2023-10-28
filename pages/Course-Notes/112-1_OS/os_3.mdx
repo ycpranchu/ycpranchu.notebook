@@ -140,7 +140,7 @@ When the `data structure` is no longer needed, it is `returned to the free list 
 * The slab layer acts as a `generic data structure-caching layer`
 > Frequent allocation and deallocation can result in memory fragmentation.
 * Can be made per-processor, so that `no locks are required` for allocation and deallocation.
-* Can be NUMA-aware
+* Can be `NUMA-aware`
 
 <Callout type="info" emoji="ℹ">
 Avoid from allocating and freeing physical address as frequent as possible.
@@ -175,13 +175,15 @@ Two common libraries to allocate kernel memory - `kmalloc()` and `vmalloc()`.
 <Callout type="info" emoji="ℹ">
 If we need a `whole 4KB page`, `alloc_pages()` in prior slides fits better.
 </Callout>
+> Return a pointer points to a block of memory that is at least the requested size.
 
 - The `vmalloc()` function allocates memory that is `only virtually contiguous`.
 > Requires page tables to maintain the mapping between virtual and physical addresses.
 
 <Callout type="info" emoji="ℹ">
-Regarding performance, memory allocation inside kernel usually uses kmalloc(). (large regions of memory)
+Regarding performance, memory allocation inside kernel `usually uses kmalloc()`.
 </Callout>
+> vmalloc() is used only when systems require large regions of memory.
 
 <Callout type="info" emoji="ℹ">
 If systems can get enough contiguous physical addresses all the time, then nearly `no address translation overhead` (1:1 direct mapping), `like kmalloc()`!
@@ -209,10 +211,9 @@ Virtual Memory Management
 
 On Linux, each process is given a `unique` and `flat` 32 or 64-bit address space.
 
-**Unique:** Processes can store `different data at the same virtual address` in their `own address space`.
+- **Unique** - Processes can store `different data at the same virtual address` in their `own address space`.
 > Threads share address space with their processes.
-
-**Flat:** Modern Linux system does not use segmentation.
+- **Flat** - Modern Linux system does not use segmentation.
 
 ![](https://hackmd.io/_uploads/r1eTyWIGp.png)
 > 32-bit address space - 0 to 2^32^ or 4294967295
@@ -223,13 +224,13 @@ Not every address is legal, `intervals of legal addresses` are `memory areas`.
 ### The Memory Descriptor
 
 Memory descriptor (`struct mm_struct`) is a **kernel data structure** contains all information related to the **process’s address space**.
-> Processes access the mm field in the process descriptor.
+> Processes access the memory descriptor by **mm field** in the process descriptor.
 
 ![](https://hackmd.io/_uploads/SkipdWLzT.png)
 
 - `mm_users` specifically `counts the number of users` within the same process that are sharing the memory map.
 - `mm_count` tracks `references to the memory map`, which can come from multiple processes, threads, or sources.
-> mm_count < = mm_users, because it's focused on the per-process reference count.
+> mm_count \<\= mm_users, because it's focused on the per-process reference count.
 
 <Callout type="warning" emoji="⚠️">
 mm_count increases when system calls
@@ -269,9 +270,9 @@ After CPUs enable `virtual memory management (or MMU)`, all virtual addresses sh
 ### Page Fault
 
 - `Minor Page Fault` - Page is `already in the memory but is not marked` in the MMU as being loaded in memory.
-> e.g. malloc() allocates physical addresses once being touched
+> e.g. malloc() allocates physical addresses once being touched.
 - `Major Page Fault` - Page is `not in the memory`.
-> May cause expensive I/O movement costs
+> May cause expensive I/O movement costs.
 
 ### How the CPU Walks Page Tables
 
@@ -281,7 +282,7 @@ The base address of PGD is maintained in `CPU’s CR3 register`.
 ![](https://hackmd.io/_uploads/SyWrbzLzp.png)
 
 <Callout type="warning" emoji="⚠️">
-Why 9-bits - Page Size = 4 KB, could accommodate `512 (9-bits) entries (4 KB / 8 B)`
+Why `9-bits` - Page Size = 4 KB, could accommodate `512 (9-bits) entries (4 KB / 8 B)`
 </Callout>
 
 ### Why 4-Level Page Tables for 64-bit System
