@@ -1,0 +1,39 @@
+Parallel Programming L4: Shared-Memory Programming with OpenMP (Part 1)
+===
+
+Introduction to OpenMP
+---
+
+What is OpenMP?
+
+- Standardizes loop-level & task parallelism.
+- Standardizes ~ 20 years of compiler-directed threading experience.
+
+> High-level API (compiler directives 80%)
+
+![](https://hackmd.io/_uploads/rJ-FpIPzp.png)
+
+OpenMP Core Syntax
+
+`#pragma omp construct [clause [clause]…]`
+
+![](https://hackmd.io/_uploads/SyDmALPGp.png)
+
+To compile with gcc, we need to include the `–fopenmp` option
+
+```bash
+$ gcc –fopenmp –o omp_hello omp_hello.c
+```
+
+![](https://hackmd.io/_uploads/SkSXkDPMa.png)
+
+Compiler Directives
+---
+
+### Thread Creation: Parallel Regions
+
+Inner variables - private data, Outter variables - shared data
+
+![](https://hackmd.io/_uploads/ry9IJvDzp.png)
+
+![](https://hackmd.io/_uploads/S1rylPvMa.png)

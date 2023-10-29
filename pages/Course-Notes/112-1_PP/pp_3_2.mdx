@@ -1,0 +1,101 @@
+Parallel Programming L3: Shared-Memory Programming with Pthreads (Part 2)
+===
+
+A Multi-threaded Linked List
+---
+
+import { Callout } from 'nextra/components'
+
+### Using One Mutex for Entire List
+
+An obvious solution is to simply lock the list any time that a thread attempts to access it.
+
+![](https://hackmd.io/_uploads/rJWjqHPMT.png)
+
+<Callout type="warning" emoji="⚠️">
+problem - we are serializing access to the list (non-parallelism)
+</Callout>
+
+### Using One Mutex per Node
+
+Instead of locking the entire list, we could try 
+to lock individual nodes and also the `head_p`.
+
+![](https://hackmd.io/_uploads/BkOrjrwGp.png)
+
+<Callout type="warning" emoji="⚠️">
+Much more complex, Frequently use System Call, Increase the Mutex storage
+</Callout>
+
+### Using Read-Write Lock
+
+A read-write lock is somewhat like a mutex except that it 
+provides two lock functions:
+
+* Locks the read-write lock for reading
+* Locks the read-write lock for writing
+
+![](https://hackmd.io/_uploads/SyHX3SDzT.png)
+
+<Callout type="info" emoji="ℹ">
+Single Writer, Multiple Reader
+</Callout>
+
+![](https://hackmd.io/_uploads/HyGdhHvf6.png)
+
+### Performance of the Various Implementations
+
+![](https://hackmd.io/_uploads/rkoP6HPMp.png)
+
+Caches, Cache Coherence, and False Sharing
+---
+
+Recall - Cache Coherence Problem
+
+### Slow Due to Cache Misses (Write-Misses)
+
+![](https://hackmd.io/_uploads/r1MAMUwG6.png)
+
+![](https://hackmd.io/_uploads/rJsabIwGT.png)
+
+### Slow Due to Cache Coherence (Read-Misses)
+
+![](https://hackmd.io/_uploads/BkadXLDfT.png)
+
+![](https://hackmd.io/_uploads/HJ3wXUvMa.png)
+
+This scenario is called `false sharing`.
+
+### False Sharing
+
+Suppose two threads with separate caches access `different variables` that belong to the `same cache line`.
+
+- One thread change its data, `then entire cache line become in_valid`.
+- The other need to fetch its data from memory, although the data isn't changed and still in the cache.
+
+<Callout type="info" emoji="ℹ">
+Solution: Padding - Use dummy data to `saparate` two data into `different cache lines`.
+</Callout>
+
+Thread-Safety
+---
+
+A block of code is `thread-safe` if it can be simultaneously executed by multiple threads without causing problems.
+
+### Example: Multithreaded Tokenizers
+
+As an example, suppose we want to use multiple threads to `“tokenize”` a file.
+
+![](https://hackmd.io/_uploads/rkOHd8PGp.png)
+
+`strtok` caches a pointer to `string`, and for subsequent calls it returns successive tokens taken from the cached copy
+
+![](https://hackmd.io/_uploads/rkxkYUDGp.png)
+
+![](https://hackmd.io/_uploads/HJFNtIDzT.png)
+
+Recall that `strtok` caches the input line (string).
+> Done by declaring a variable to have static storage class
+
+Unfortunately for us, this cached string is shared, not private. Thus, thread 0’s call to `strtok` with the third line of the input has apparently `overwritten the contents` of thread 1’s call with the second line (string has been modified).
+> strtok_r - a thread-safe version of strtok

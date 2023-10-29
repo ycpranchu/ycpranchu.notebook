@@ -1,4 +1,7 @@
 {
     "pp_1": "L1: Overview of Parallel and Distributed Programming",
-    "pp_2": "L2: Introduction to Parallel Hardware and Software"
+    "pp_2": "L2: Introduction to Parallel Hardware and Software",
+    "pp_3_1": "L3: Shared-Memory Programming with Pthreads (Part 1)",
+    "pp_3_2": "L3: Shared-Memory Programming with Pthreads (Part 2)",
+    "pp_4": "L4: Shared-Memory Programming with OpenMP (Part 1)"
 }

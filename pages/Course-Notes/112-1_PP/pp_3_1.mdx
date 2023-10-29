@@ -1,0 +1,192 @@
+Parallel Programming L3: Shared-Memory Programming with Pthreads (Part 1)
+===
+
+Introduction
+---
+
+import { Callout } from 'nextra/components'
+
+`Shared Memory System`
+
+![](https://hackmd.io/_uploads/H1c8h9sGT.png)
+
+`Issues to be Addressed`
+
+See that the use of cache memories can actually cause a shared-memory program to run more slowly.
+> False sharing
+
+Processes, Threads, and Pthreads
+---
+
+### Processes
+
+Memory Layout of C Programs
+
+![](https://hackmd.io/_uploads/Bk7j35ifT.png)
+
+### Threads
+
+Thread, comes from the concept of "thread of control".
+
+![](https://hackmd.io/_uploads/Sk426csGT.png)
+
+* (a) Three processes each with one thread
+* (b) One process with three threads
+
+![](https://hackmd.io/_uploads/rJCgA9sfp.png)
+
+### Processes vs Threads
+
+![](https://hackmd.io/_uploads/SJhBC5jGp.png)
+
+### Pthreads
+
+Pthread Operations
+
+![](https://hackmd.io/_uploads/Hyp90qoMT.png)
+
+Creation of Threads
+
+#### pthread_create()
+
+Creates a new thread to execute a specified thread function.
+
+![](https://hackmd.io/_uploads/rkApCcjfp.png)
+
+Example - Creation of 2 Threads
+
+![](https://hackmd.io/_uploads/rkZG1ijzT.png)
+
+#### pthread_join()
+
+Wait for the thread associated with the pthread_tobject to complete.
+
+![](https://hackmd.io/_uploads/BkrcJssza.png)
+
+![](https://hackmd.io/_uploads/r1CnJooG6.png)
+
+#### Creating and Joining Threads
+
+![](https://hackmd.io/_uploads/BkTA1jsfT.png)
+> Threads not joined are called detached threads.
+
+### Thread Attributes
+
+`Detached state` is one thread attribute which is not joinable and will release the resources.
+
+A thread may be created as a:
+
+- `joinable` thread (the default)
+> When it terminates, its exit state is still kept in the system until another thread calls pthread_join() to obtain its return value.
+- `detached` thread
+> Its exit state is cleaned up automatically when it terminates.
+
+![](https://hackmd.io/_uploads/SyTj6Jnza.png)
+
+Compilation
+---
+
+![](https://hackmd.io/_uploads/SyS6AJ3fp.png)
+
+Compilation (add `-lpthread`)
+
+```bash
+$ gcc -o pth_hello pth_hello.c -lpthread
+```
+
+Matrix-Vector Multiplication
+---
+
+![](https://hackmd.io/_uploads/H14kxx3za.png)
+
+![](https://hackmd.io/_uploads/r1K01ehM6.png)
+
+Calculation of Pi
+---
+
+![](https://hackmd.io/_uploads/rJxNlxhGT.png)
+
+<Callout type="warning" emoji="⚠️">
++= operator is not atomatic - race condition
+</Callout>
+
+### Using Busy-Waiting
+
+An `optimizing compiler` might therefore determine that the program would make better use of registers if the order of the statements were switched.
+
+![](https://hackmd.io/_uploads/HJVT-x3z6.png)
+
+![](https://hackmd.io/_uploads/SJ7rGxnf6.png)
+
+<Callout type="warning" emoji="⚠️">
+Problem - If thread 0 is delayed, thread 1 will simply “spin” on the test, eating up CPU cycles.
+</Callout>
+
+### Mutex
+
+The Pthreads standard includes a special type for mutexes - `pthread_mutex_t`
+> It's a system call.
+
+![](https://hackmd.io/_uploads/H130Me2za.png)
+
+![](https://hackmd.io/_uploads/ByIJXghf6.png)
+
+### Busy-Wait vs Mutex
+
+- Performance - Each thread only enters the critical section once.
+- Adaptability - Busy-waiting will execute the code in the critical section `ordered`.
+> Since matrix multiplication isn’t commutative, our mutex solution would have problems
+
+Producer-Consumer Synchronization
+---
+
+### Using Busy-Wait
+
+![](https://hackmd.io/_uploads/H1n1ExhGa.png)
+
+### Using Mutexes
+
+![](https://hackmd.io/_uploads/S1n-re3MT.png)
+
+![](https://hackmd.io/_uploads/rJpmBx2z6.png)
+
+![](https://hackmd.io/_uploads/Hk9SBghf6.png)
+
+T0 will acquire the lock and continue to dereferencing a null pointer.
+
+<Callout type="warning" emoji="⚠️">
+Have ownership mechanism.
+</Callout>
+
+### Semaphores
+
+![](https://hackmd.io/_uploads/B1ox8x3zT.png)
+
+![](https://hackmd.io/_uploads/HkrZ8e2Ga.png)
+
+Barriers
+---
+
+No thread can proceed beyond the barrier until all the threads have reached it.
+> Report the time taken by the last thread to finish, that is, the “slowest” thread.
+
+- Determine where an error is occurring in a parallel program.
+
+### Using Busy-Waiting
+
+![](https://hackmd.io/_uploads/ry73wl2MT.png)
+
+Some other thread may `enter the second barrier` before counter is reset and its increment to the counter will be lost.
+
+### Using Semaphores
+
+![](https://hackmd.io/_uploads/rksk_gnGT.png)
+
+However, `reusing barrier_sem` results in a race condition.
+
+### Using a Condition Variable
+
+A `condition variable` is a data object that allows a thread to suspend execution until a certain event or condition occurs.
+> Condition occurs, another thread can signal the thread to “wake up”.
+
+![](https://hackmd.io/_uploads/ByzddxnGp.png)
