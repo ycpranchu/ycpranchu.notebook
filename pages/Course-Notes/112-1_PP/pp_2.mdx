@@ -272,3 +272,35 @@ Two threads programming styles:
 
 - `Explicit` - User creates threads using threads API (eg. POSIX Threads)
 - `Implicit` - User uses high-level directives to create threads with the help of tool chain (eg. OpenMP)
+
+In any MIMD system in which the `processors execute asynchronously` it is likely that there will be nondeterminism.
+> race condition
+
+`Thread Safe` - Many serial functions can be used safely in multithreaded programs.
+
+<Callout type="warning" emoji="⚠️">
+Not really in C program - static local variables are shared memory
+</Callout>
+
+###  Distributed-memory model
+
+In distributed-memory programs, the cores can directly access only their `own, private memories`.
+
+#### Message Passing
+
+![](https://hackmd.io/_uploads/r1Cg_5iG6.png)
+> The two processes are using the same executable, but carrying out different actions.
+
+- `Broadcast` - In which a single process transmits the same data to all the processes
+- `Reduction` - In which results computed by the individual processes are combined into a single result
+
+#### One Sided Communication
+
+remote memory access
+
+#### Programming Hybrid Systems
+
+Combination of a shared-memory API on the nodes and a distributed-memory API for internode communication.
+> "hybrid"
+
+![](https://hackmd.io/_uploads/ry-MK5sfa.png)
