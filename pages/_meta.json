@@ -1,28 +1,18 @@
 {
     "index": "Home",
 
-    "Course-Notes": {
-        "title": "Lecture Notes"
+    "course-notes": {
+        "title": "Lecture Notes",
+        "type": "page"
     },
-    "Algorithm": {
-        "title": "Algorithm"
+    "tech-notes": {
+        "title": "Tech Notes",
+        "type": "page"
     },
-    "Ray-Tracing": {
-        "title": "Ray Tracing"
+    "life": {
+        "title": "Life",
+        "type": "page"
     },
-    "GPU": {
-        "title": "GPU"
-    },
-    "Web-Design": {
-        "title": "Web Design"
-    },
-    "Linebot": {
-        "title": "Linebot Design"
-    },
-    "Cuda": {
-        "title": "Cuda"
-    },
-
     "about_me": {
         "title": "About Me",
         "type": "page"

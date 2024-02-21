@@ -1,0 +1,19 @@
+{
+    "reading_list": "Reading List",
+
+    "algorithm": {
+        "title": "Algorithm"
+    },
+    "ray_tracing": {
+        "title": "Ray Tracing"
+    },
+    "gpu": {
+        "title": "GPU"
+    },
+    "linebot": {
+        "title": "Linebot"
+    },
+    "web_design": {
+        "title": "Web Design"
+    }
+}
