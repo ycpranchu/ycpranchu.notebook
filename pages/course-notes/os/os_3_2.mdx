@@ -1,0 +1,79 @@
+Operating System L3-2: Advance Research Topics
+===
+
+Paging: A Deep Dive
+---
+
+### How to enable MMU
+
+The `MMU is activated` during the system boot process.
+
+![image.png](https://hackmd.io/_uploads/r1ZbUuuQ6.png)
+
+CPU runs a `jump command` to execute the virtual address, which points to the next instruction.
+
+### Single-Level Page Table
+
+Single-level page tables map virtual and physical memory one-to-one.
+
+- Not suitable when systems have a large or sparse virtual address space
+> Hugh memory consumption
+ 
+- When to use: Systems have `small address spaces` or `when a one-to-one mapping is desirable`. 
+
+![image.png](https://hackmd.io/_uploads/BJk28__7a.png)
+
+import { Callout } from 'nextra/components'
+
+<Callout type="warning" emoji="⚠️">
+Caveat: The system needs `2^36 pages * 2^3 = 2^39` continuous pages (or `512GB`) to store a single-level page table.
+</Callout>
+
+### Inverted Page Table (Out-dated)
+
+<Callout type="warning" emoji="⚠️">
+Large memory consumption for storing multi-level page tables.
+</Callout>
+
+Single-level and only one page table, PTE = \<process-id, page-number, offset\>
+
+- One entry for each page frame.
+- \<process-id page-number\> equals to the function of multi-level tables.
+- If a match is found, \<process-id, page-number\> = i, `get physical page (frame)` by \<i, offset\>.
+
+<Callout type="info" emoji="ℹ">
+Sorted by the physical addresses.
+</Callout>
+
+![image.png](https://hackmd.io/_uploads/ByesDdOX6.png)
+
+Disadvantages:
+
+* Shall walk through the whole table if there is no matched.
+* One physical page cannot have two shared virtual addresses.
+
+### Huge Page Management
+
+Challenge of using 4KB page size.
+
+* TLB_Reach `(TLB_Size X Page_Size)` - The amount of memory accessible from the TLB. > High TLB Misses
+* Page Table Walk - `Up to 4 DRAM accesses` for translating a virtual address.
+
+Huge Page - `Large contiguous` (both virtual and physical) memory chunk.
+
+![image.png](https://hackmd.io/_uploads/SyMGyK_Xp.png)
+
+<Callout type="warning" emoji="⚠️">
+2MB - 0~21 bit area
+</Callout>
+
+Q & A
+---
+
+Why inverted page table cannot have two shared virtual address?
+
+If a match is found, \<process-id, page-number\> = i, get physical page (frame) by \<i, offset\>. -> `VA can't share the same i index`.
+
+> Solve - extra bit could be set in the page table. (time consuming) 
+
+![image](https://hackmd.io/_uploads/ByoWXkiNT.png)

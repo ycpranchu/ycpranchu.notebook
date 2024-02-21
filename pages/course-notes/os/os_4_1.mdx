@@ -1,0 +1,157 @@
+Operating System L4-1: Device & Block Layers
+===
+
+A Split View of the Kernel
+
+![image](https://hackmd.io/_uploads/H1qumkjVa.png)
+
+Cache vs Memory vs Storage
+---
+
+Why Memory Hierarchy - Balance access time and cost.
+
+import { Callout } from 'nextra/components'
+
+<Callout type="warning" emoji="⚠️">
+`OS execution time` is slower than memory accesses and faster than storage accesses.
+</Callout>
+
+- Get data from memory - CPU loads/stores.
+- Get data from storage - Shall execute OS. 
+
+### Data in Memory
+
+`Process data` and some `file data (Page Cache)` are both stored in the memory.
+
+* For process data, CPU accesses them by using `load/store instructions`.
+* For file data, CPU accesses them `by running the system call and I/O stacks`.
+
+![image](https://hackmd.io/_uploads/rkNEV1s46.png)
+
+### What is Storage & Data
+
+- What is data - A sequence of 0 and 1.
+- What are storage/memory devices - Devices consist of material which can switch between 2 states (i.e., 0 and 1).
+
+### I/O Devices & I/O Systems
+
+![image](https://hackmd.io/_uploads/Bym2Vys4p.png)
+
+Hard Disk Drives (HDDs)
+
+- Cheaper per GB
+- Reliability - Data will not loss
+
+Solid-State Drives (SSDs)
+
+- Faster Performance (No moving heads)
+- No vibrations or noise
+- Lighter and Smaller
+- Support Random Access Better
+
+Hard Disk Drive (HDD)
+---
+
+A hard disk has one or multiple platters.
+
+- Each platter has 2 slides (`surfaces`).
+- There is a `tiny distance` between the arm head and the surface. (`R/W by Magnetic`).
+- Platters are bound together by a `spindle`.
+
+![image](https://hackmd.io/_uploads/S12PHysEp.png)
+
+Disk Performance (Without Optimizations) - `Seek_Time` + `Rotational_Delay` + `Transfer_Time`
+
+- Seek Time: The time to move the disk arm to the `correct track` (Average: 4.9ms)
+- Rotational Delay: `Rotate` the spindle to move the `desired sector` under the disk head.
+- Transfer Time: The time to r/w data to the surface.
+
+<Callout type="info" emoji="ℹ">
+HDDs take `longer time` to deal with `random accesses`.
+</Callout>
+
+### Deep Dive into the Read/Write Head
+
+Direction of magnetic field (e.g., Anti-Parallel -> 1, Parallel -> 0)
+
+* Read Head - Giant Magnetoresistance (GMR)
+* Write Head - Inductive write
+
+![image](https://hackmd.io/_uploads/rynULyoNa.png)
+
+### Shingled Magnetic Recording (SMR)
+
+Why SMRs work - `Size difference` between the reader and writer.
+
+- Sequential Write Constraint - Cannot directly update data in prior tracks. Shall `read out`, `modify` and `write` to a new track.
+
+![image](https://hackmd.io/_uploads/BJ3xD1jE6.png)
+
+NAND Flash Based Solid State Drives (SSD)
+---
+
+- `NAND Flash memory` is a widely used `memory/storage technology`.
+- `NOR Flash` is another technology for replacing the read-only memory (ROM) to `store BIOS` and `Firmware` (Faster random read). 
+
+SSD - Channel -> Chip -> `Die (32 Gb)` -> Plane -> Block -> Pages -> Cell
+
+<Callout type="info" emoji="ℹ">
+1 Die = 2 * 1024 * 512 * 4KB = 4GB = 32Gb
+</Callout>
+
+![image](https://hackmd.io/_uploads/BkDXjyjEp.png)
+
+- `Flash memory cells` on the `same wordline` are belonging to `a flash page`.
+
+### NAND-Flash Cell
+
+Each cell can store 1-bit or n-bits data.
+
+How to store data - The value of `each data bit` is stored in a floating-gate.
+> (Bit 0 -> with electrons, Bit 1 -> without electrons)
+
+- Program (or Write) - Push electrons from P-substrate into the floating gate.
+- Read - Check the `current value` between n-source and n-drain.
+
+![image](https://hackmd.io/_uploads/rkeV21sN6.png)
+
+![image](https://hackmd.io/_uploads/BJmshJoN6.png)
+
+### How NAND-Flash Cell Works
+
+![image](https://hackmd.io/_uploads/BJNP8ej46.png)
+
+- Read/Write Granularity - Flash page (4KB ~ 16KB)
+- Erase Granularity - A block comprises a lot of Flash Pages (512)
+> Erase unit > Write unit, shall follow the sequential write constraint.
+
+### Multi-Level Cells
+
+* Single-Level Cell (SLC) - One-bit per cell
+* Multi-Level Cell (MLC) - Multiple-bits per cell, 2^#bits voltage levels
+
+![image](https://hackmd.io/_uploads/BycKVVgvp.png)
+
+### Wear Outs & Retention Errors
+
+A cell `cannot permanently retain` electrons, electrons escape over time.
+> Pattern: 00 -> 01 or 01 -> 10
+
+![image](https://hackmd.io/_uploads/BJP1uVxva.png)
+
+### SSD’s Architecture
+
+* `Sequential Write Constraint` - Sol: Address Remapping (Logical Block Address to Physical Block Address) + Garbage Collection
+* `Limited Lifetime` - Sol: Wear Leveling
+
+![image](https://hackmd.io/_uploads/BkrLqx4Pp.png)
+
+`Memory Technology Device (MTD)` - Interact (read/program) with NAND Flash chips.
+
+![image](https://hackmd.io/_uploads/B1uC_VeP6.png)
+
+Clarifications
+---
+
+- `Leakage power` - power consumed even when it's not actively performing any computation or operations
+- `Dynamic power` - power consumed during active operations or when it's switching states
