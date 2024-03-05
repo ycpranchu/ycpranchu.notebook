@@ -1,0 +1,91 @@
+UNIX Lab1: docker & pwntools
+===
+
+[TOC]
+
+Objective
+---
+
+This lab aims to build a runtime environment required by this course. You have to be familiar with docker, python, and pwntools in this lab.
+
+Instructions
+---
+
+1. Follow the instructions in the introduction slide, compile textbook samples, and run in your container instance.
+
+    - Download the [Dockerfile](https://people.cs.nycu.edu.tw/~chuang/courses/unixprog/resources/debian/Dockerfile) and [docker-compose.yml](https://people.cs.nycu.edu.tw/~chuang/courses/unixprog/resources/debian/docker-compose.yml) from the course website.
+
+    ```bash=
+    # 修改 Dockerfile username
+    docker-compose up -d
+    docker ps
+    ssh -p 22222 [username]@localhost // pw: sense
+    # 建立 home/user 目錄
+    ```
+
+    - [docker 安裝](https://www.runoob.com/docker/docker-tutorial.html)
+    - [docker containers 移除方法](https://blog.clarence.tw/2019/09/10/docker-removing-containers-images-volumes-and-networks/)
+
+1. Install `pwntools`.
+
+    - [pwntools 安裝](https://md.zoolab.org/s/EleTCdAQ5)
+    - [pwntools 說明](https://sectools.tw/pwntools-tubes/)
+
+Requirements
+---
+
+1. Once `pwntools` is installed successfully, please solve the ***simple HTTP challenge*** by implementing a `pwntools` script to retrieve IP address from the URL: [http://ipinfo.io/ip](http://ipinfo.io/ip). You may try to play with the URL using the command:
+
+   ```sh
+   curl http://ipinfo.io/ip
+   ```
+
+   Your script output should be equivalent to the above command. To see the details about how `curl` interacts with the remote server, you may pass an optional parameter `-v` to `curl`.
+
+1. Please also solve the challenge running at 
+   ```
+   nc up.zoolab.org 10681
+   ```
+   Note that there is another `pow` challenge before you can actually solve it. Please read the [pow (proof-of-work)](https://md.zoolab.org/s/EHSmQ0szV) document first.
+
+   The challenge asks you to solve simple mathematical equations. You have to **read the equations and send the answer back** to the server. Each of the equations is encoded in the base64 encoding. You have to decode the equations by your script, calculate the answer, and then send the answer to the server.
+
+Grading
+---
+
+1. [10pts] Prepare your own runtime environment (Linux OS running on dockers, VMs, or physical machines). Please ensure that you are using your own name instead of `chuang`.
+
+1. [10pts] Ensure that your (external) files are accessible in your runtime docker (or VM). If you run Linux natively on a physical machine, you can skip this step and get the 10pts automatically.
+
+1. [10pts] Install pwntools and ensure that the following script works in the Python3 interpreter.
+
+   ```python
+   from pwn import *
+   r = process('read Z; echo $Z', shell=True)
+   r.sendline(b'AAA')
+   r.interactive()
+   ```
+
+1. [20pts] Solve the ***simple HTTP challenge*** described above.
+
+1. [50pts] Solve the challenge running on our challenge server.
+
+---
+
+Overview
+---
+
+![image](https://hackmd.io/_uploads/SJc4HiEhT.png =70%x)
+
+**List of Linux system calls**
+◦ http://man7.org/linux/man-pages/man2/syscalls.2.html
+◦ (x86_64) https://github.com/torvalds/linux/blob/master/arch/x86/entry/syscalls/syscall_64.tbl
+◦ (x86) https://syscalls.kernelgrok.com/
+◦ (x86_64) http://www.cs.utexas.edu/~bismith/test/syscalls/syscalls64_orig.html
+◦ (multiple) https://w3challs.com/syscalls/
+
+**Makefile**
+◦ http://www.gnu.org/software/make/manual/
+
+**GDB**
+◦ https://man7.org/linux/man-pages/man1/gdb.1.html
