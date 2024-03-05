@@ -1,0 +1,140 @@
+L5: File System & Virtual Filesystem
+===
+
+Filesystem - `Method` and `data structure` that the operating system uses to control how data is stored and retrieved.
+> Without it, data will be one large body on storage media (Hard to separate and identify).
+
+- Disk-based filesystems - Storing files on `non-volatile block-oriented` media.
+- Network filesystems - Carried out over a network connection.
+
+Filesystem – File and Directories
+---
+
+File - a linear array of bytes that can be read/written
+
+- Each file has a `low-level name` (or `inode number`) that `uniquely identifies` itself.
+> Each directory (`special type of file` with specific content) has an inode number as well.
+
+Directory Tree
+
+![image](https://hackmd.io/_uploads/rk1WbCJv6.png)
+
+For Linux, `no difference` between files and directories.
+
+Filesystem – More Details
+---
+
+File Descriptor - An integer to identify the `open file` in all file-related operations.
+> Assigned by the kernel `when a file is opened` and is valid only `within a process`.
+
+![image](https://hackmd.io/_uploads/S1qB5Q4Dp.png)
+
+Inode - Each file (or directory) has their own inode.
+> `Contains metadata` such as access rights, date, pointers to the file data.
+
+- Soft Links - A separate file (called shortcut) `contains a path or reference` to the target file or directory. (捷徑)
+- Hard Links - `The file shares` all the attributes of the original file, `even the inode number`. (Copy)
+
+![image](https://hackmd.io/_uploads/B1Be2QNDT.png)
+
+**Layout Concepts of a FS (On Storage Device)**
+
+![image](https://hackmd.io/_uploads/HkdF37EDT.png)
+
+Log-Structure File System
+---
+
+Sequential Accesses - Write data in a `sequential order is not enough`. May still suffer from a lot of `contiguous writes`.
+
+- Write Buffering - `Buffer all updates` and write a bunch of data `to a disk in a batch`.
+
+![image](https://hackmd.io/_uploads/rkY3C74Dp.png)
+
+- How to find an inode in the disk
+
+![image](https://hackmd.io/_uploads/rybb1EVwT.png)
+> Inode Map (Inode# → Address) - Can track each inode easily and efficiently
+
+- How to find the corresponding inode map
+
+Checkpoint Region - Fixed and known region on the disk. It contains pointers to the `latest pieces of the inode map`.
+
+![image](https://hackmd.io/_uploads/HkH8J4EvT.png)
+
+- What about Directories (/home/test)
+
+A directory is just a collection of (name, inode number) mappings
+> A directory like a `file has their own inode`.
+
+- Challenge `without inode map` - recursive update problem
+
+![image](https://hackmd.io/_uploads/ByjIZ4EwT.png)
+
+Virtual File System
+---
+
+Enables programs to use `standard Unix system calls` to work `regardless` of the filesystem or underlying physical medium (standard interface).
+> issue generic system calls to access files via a uniform naming policy on *any filesystem, any storage medium*
+
+![image](https://hackmd.io/_uploads/BJNQRNHwp.png)
+
+### VFS Objects and Data Structures
+
+Four primary object types of VFS:
+
+- *Superblock* Object - Represents a specific `mounted file system`.
+- *inode* Object - Represents a `specific file`.
+- *dentries* Object - Represents a `directory entry`, which is a single component of a path.
+- *File* Object - Represents an `open file` as associated with a process.
+> dentry != directory. Directory is just another kind of file.
+
+#### The Superblock Object
+
+Designed to `store information describing the filesystem`.
+
+- When mounted, a FS invokes alloc_super(), `reads its superblock off the disk`, and `fills in its superblock object`.
+
+![image](https://hackmd.io/_uploads/r16pNSHv6.png)
+
+> FS wanted to write to its superblock, sb → s_op → write_super(sb);
+
+#### The Inode Object
+
+`Represents all the information` needed by the kernel to `manipulate a file`.
+
+- `inode` represents metadata of each file on a FS
+- `inode object` (or VFS inode) is constructed in memory only `as files are accessed`
+
+#### The Dentry Object
+
+The `hierarchical nature of a file system` is managed by dentry objects.
+> /home/hello/world → Four dentry objects
+> 
+> The dentry object `does not correspond` to any sort of on-disk data structure.
+
+- Used - Corresponds to a valid inode and is `own by some users`.
+- Unused - Corresponds to a valid inode, but does `not belong to any user`.
+- Negative - Not associated with inode.
+
+Both `dentry objects` and the `corresponding inodes can be cached` for faster directory lookup and file metadata accesses.
+
+#### The File Object & File Operations
+
+Represent a `file opened by a process`, may have multiple file objects for the same file
+> the file object doesn’t correspond to any on-disk data.
+
+![image](https://hackmd.io/_uploads/HyXuwrrwa.png)
+
+Page Cache
+---
+
+Page Cache - a disk cache. Minimize disk I/O by `storing (page) data in the main memory`.
+
+![image](https://hackmd.io/_uploads/ByGRPrHDT.png)
+
+Write Operation:
+
+- Write-Through - Automatically `update both` the in-memory cache and the on-disk file `at the same time`.
+> Keeping the page cache and storage `coherent`.
+- Write-Back - Backing storage is `not immediately updated`.
+> Data can be coalesced and written back in a batch. (periodically writes those `dirty pages` back to the storage device)

@@ -1,0 +1,104 @@
+Operating System L4-2: Device Driver
+===
+
+Device Driver
+---
+
+### Interaction with the Peripherals
+
+- Port-Mapped I/O (Isolated I/O) - CPU accesses peripherals by `IN/OUT instructions` where the `I/O address space is separated from the memory address space`.
+- Memory Mapped I/O - CPU accesses peripherals by `load/store instructions` where the `I/O address space is shared with the memory address space`.
+
+import { Callout } from 'nextra/components'
+
+<Callout type="info" emoji="ℹ">
+Direct Memory Access (DMA) - `Transfer data` directly between memory and I/O devices `without CPU’s interventions`.
+</Callout>
+
+![image](https://hackmd.io/_uploads/ryXWc7EHT.png)
+
+### Kernel I/O Stacks
+
+- Block Devices - `Addressable` in device-specified chunks called blocks and generally support `seeking`, the `random access of data`.
+> Mounted as a file system, transferr fixed number of bytes
+- Character Device - Providing access to data `only as a stream`, generally of characters (bytes).
+> transferr one byte
+
+![image](https://hackmd.io/_uploads/SJEyplEv6.png)
+
+Compositions of device driver
+
+- 52% Char device drivers
+- 16% Block device drivers
+- 27% Network device drivers
+
+How to Build a Device Driver
+---
+
+Device Driver - A `computer program` that operates or `controls a particular type of device` that is attached to a computer.
+
+- Module_init - Kernel runs a function when the module is `loaded`.
+- Module_exit - Kernel runs a function when the module is `removed`.
+
+![image](https://hackmd.io/_uploads/S1PsJ-NP6.png)
+
+Source Tree:
+
+- `Store driver code` in the correlated directory
+- `Modify the Makefile` in the directory
+
+Build Externally:
+
+![image](https://hackmd.io/_uploads/SJDLl-Ewp.png)
+
+### Kernel Programming
+
+Kernel code can `access the global item current`, which has a pointer `points to struct task_struct`.
+
+- Super small stack - the kernel has a very small stack (Only 1~2 pages)
+- Kernel function with __ - Low-level components (used with caution)
+- Do not use floating points - very expensive in the kernel
+
+Block I/O Layer
+---
+
+### Buffers and Buffer Heads
+
+- Sector - The smallest addressable unit of the `storage device`.
+- Block - The smallest addressable unit of the `file system`.
+> Size(Page) >= Size(Block) >= Size(Sector)
+
+`Buffer` - The object which represents a block in memory.
+> Buffer Head - A descriptor (i.e., struct buffer_head) for each buffer. 
+
+![image](https://hackmd.io/_uploads/Hk3yGWVvT.png)
+
+### Challenges of Buffer Heads
+
+Buffer heads play the role of `buffer-to-block mapping`.
+
+- Challenge 1 - A large and bulky data structure.
+> A block is smaller than a page, and each buffer is described by a `bulky buffer head` (inefficient).
+> Sol (2.6 kernel): kernel works directly with pages and address spaces instead of blocks.
+- Challenge 2 - kernel shall break up `large block I/O operations` into `multiple needless buffer_head structures`
+> Sol (2.5 kernel): A new, flexible, and lightweight container for block I/O operations. (bio) 
+
+### BIO Structure
+
+This structure represents `block I/O operations that are in flight`  (active) as a list of segments.
+> Segment: A chunk of a `buffer that is contiguous` in memory.
+
+![image](https://hackmd.io/_uploads/SkcbQW4wT.png)
+
+### Optimization on I/O Schedulers
+
+Request Queues - Store pending (待辦) block I/O requests
+
+Challenges - `Simply sending` out requests to the block devices `in the order` that the kernel issues them, results in `poor performance`.
+> Sol: Merging and sorting of pending requests in the queue.
+
+I/O Schedulers - `Decides the order` of requests in the queue and `at what time each request is dispatched` to the block device.
+
+- Merging - coalescing of two or more requests into one.
+- The entire request queue is kept sorted, sectorwise.
+> Minimize all seeking by `keeping the disk head moving in a straight line`.

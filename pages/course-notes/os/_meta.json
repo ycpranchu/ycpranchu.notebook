@@ -1,6 +1,10 @@
 {
     "os_1": "L1: Recap",
-    "os_2_1": "L2: Process & Scheduling",
-    "os_2_2": "L2: Interrupt",
-    "os_3": "L3: Memory Management"
+    "os_2_1": "L2-1: Process & Scheduling",
+    "os_2_2": "L2-2: Interrupt",
+    "os_3_1": "L3-1: Memory Management",
+    "os_3_2": "L3-2: Advance Research Topics",
+    "os_4_1": "L4-1: Device & Block Layers",
+    "os_4_2": "L4-2: Device Driver",
+    "os_5": "L5: File System & Virtual Filesystem"
 }
